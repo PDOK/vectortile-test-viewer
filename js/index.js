@@ -112,8 +112,7 @@ function zoomToTileSet (map, bounds) {
   let extentString = boundsString.split(',')
   let extent = extentString.map(Number)
   if (extent.includes(NaN)) {
-    let message = `<p class='error'>Invalid bounding box in tile metadata.json</p>`
-    document.getElementById('tileSetError').innerHTML = message
+    // silently ignore if extent cannot be read
     return
   }
   let extentRd = transformExtent(extent, 'EPSG:4326', rdProjection)

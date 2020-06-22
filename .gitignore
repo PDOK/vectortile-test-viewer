@@ -26,3 +26,4 @@ test/fixtures/**/.fbkpm
 /packages/lockfile/index.js
 .vscode/
 .cache/
+gh-pages/
