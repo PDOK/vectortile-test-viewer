@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+target_dir_fonts="./node_modules/pdok-huisstijl/dist/pdok-huisstijl/fonts/bootstrap"
+target_dir_images="./node_modules/pdok-huisstijl/dist/pdok-huisstijl/images/pdok"
+mkdir -p $target_dir_fonts
+cp ./assets/bootstrap-fonts/* $target_dir_fonts
+mkdir -p $target_dir_images
+find ./node_modules/pdok-huisstijl/dist/pdok-huisstijl/images -maxdepth 1 -type f -exec cp {} $target_dir_images \;
