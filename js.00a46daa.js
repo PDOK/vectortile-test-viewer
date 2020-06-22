@@ -66308,10 +66308,20 @@ function _default(crs, denorm, point) {
 
     if (i === 0) {
       v = xin;
-      t = 'x';
+
+      if ("ew".indexOf(crs.axis[i]) !== -1) {
+        t = 'x';
+      } else {
+        t = 'y';
+      }
     } else if (i === 1) {
       v = yin;
-      t = 'y';
+
+      if ("ns".indexOf(crs.axis[i]) !== -1) {
+        t = 'y';
+      } else {
+        t = 'x';
+      }
     } else {
       v = zin;
       t = 'z';
@@ -66319,19 +66329,10 @@ function _default(crs, denorm, point) {
 
     switch (crs.axis[i]) {
       case 'e':
-        out[t] = v;
-        break;
-
       case 'w':
-        out[t] = -v;
-        break;
-
       case 'n':
-        out[t] = v;
-        break;
-
       case 's':
-        out[t] = -v;
+        out[t] = v;
         break;
 
       case 'u':
@@ -66456,17 +66457,23 @@ function transform(source, dest, point) {
   if (source.projName === 'longlat') {
     point = {
       x: point.x * _values.D2R,
-      y: point.y * _values.D2R
+      y: point.y * _values.D2R,
+      z: point.z || 0
     };
   } else {
     if (source.to_meter) {
       point = {
         x: point.x * source.to_meter,
-        y: point.y * source.to_meter
+        y: point.y * source.to_meter,
+        z: point.z || 0
       };
     }
 
     point = source.inverse(point); // Convert Cartesian to longlat
+
+    if (!point) {
+      return;
+    }
   } // Adjust for the prime meridian if necessary
 
 
@@ -66480,7 +66487,8 @@ function transform(source, dest, point) {
   if (dest.from_greenwich) {
     point = {
       x: point.x - dest.from_greenwich,
-      y: point.y
+      y: point.y,
+      z: point.z || 0
     };
   }
 
@@ -66488,7 +66496,8 @@ function transform(source, dest, point) {
     // convert radians to decimal degrees
     point = {
       x: point.x * _values.R2D,
-      y: point.y * _values.R2D
+      y: point.y * _values.R2D,
+      z: point.z || 0
     };
   } else {
     // else project
@@ -66497,7 +66506,8 @@ function transform(source, dest, point) {
     if (dest.to_meter) {
       point = {
         x: point.x / dest.to_meter,
-        y: point.y / dest.to_meter
+        y: point.y / dest.to_meter,
+        z: point.z || 0
       };
     }
   } // DGR, 2010/11/12
@@ -66529,10 +66539,21 @@ function transformer(from, to, coords) {
   var transformedArray, out, keys;
 
   if (Array.isArray(coords)) {
-    transformedArray = (0, _transform.default)(from, to, coords);
+    transformedArray = (0, _transform.default)(from, to, coords) || {
+      x: NaN,
+      y: NaN
+    };
 
-    if (coords.length === 3) {
-      return [transformedArray.x, transformedArray.y, transformedArray.z];
+    if (coords.length > 2) {
+      if (typeof from.name !== 'undefined' && from.name === 'geocent' || typeof to.name !== 'undefined' && to.name === 'geocent') {
+        if (typeof transformedArray.z === 'number') {
+          return [transformedArray.x, transformedArray.y, transformedArray.z].concat(coords.splice(3));
+        } else {
+          return [transformedArray.x, transformedArray.y, coords[2]].concat(coords.splice(3));
+        }
+      } else {
+        return [transformedArray.x, transformedArray.y].concat(coords.splice(2));
+      }
     } else {
       return [transformedArray.x, transformedArray.y];
     }
@@ -66545,8 +66566,14 @@ function transformer(from, to, coords) {
     }
 
     keys.forEach(function (key) {
-      if (key === 'x' || key === 'y') {
-        return;
+      if (typeof from.name !== 'undefined' && from.name === 'geocent' || typeof to.name !== 'undefined' && to.name === 'geocent') {
+        if (key === 'x' || key === 'y' || key === 'z') {
+          return;
+        }
+      } else {
+        if (key === 'x' || key === 'y') {
+          return;
+        }
       }
 
       out[key] = coords[key];
@@ -67430,122 +67457,7 @@ Point.prototype.toMGRS = function (accuracy) {
 
 var _default = Point;
 exports.default = _default;
-},{"mgrs":"node_modules/mgrs/mgrs.js"}],"node_modules/proj4/package.json":[function(require,module,exports) {
-module.exports = {
-  "_from": "proj4@2.5.0",
-  "_id": "proj4@2.5.0",
-  "_inBundle": false,
-  "_integrity": "sha1-46iM5+egciGqzLxnYN0ur+50XwM=",
-  "_location": "/proj4",
-  "_phantomChildren": {},
-  "_requested": {
-    "type": "version",
-    "registry": true,
-    "raw": "proj4@2.5.0",
-    "name": "proj4",
-    "escapedName": "proj4",
-    "rawSpec": "2.5.0",
-    "saveSpec": null,
-    "fetchSpec": "2.5.0"
-  },
-  "_requiredBy": [
-    "/"
-  ],
-  "_resolved": "http://ota-portal.so.kadaster.nl:80/artifactory/api/npm/npm-registry/proj4/-/proj4-2.5.0.tgz",
-  "_shasum": "e3a88ce7e7a07221aaccbc6760dd2eafee745f03",
-  "_spec": "proj4@2.5.0",
-  "_where": "/home/anton/workspace/vector-tiles-viewer-debug",
-  "author": "",
-  "bugs": {
-    "url": "https://github.com/proj4js/proj4js/issues"
-  },
-  "bundleDependencies": false,
-  "contributors": [
-    {
-      "name": "Mike Adair",
-      "email": "madair@dmsolutions.ca"
-    },
-    {
-      "name": "Richard Greenwood",
-      "email": "rich@greenwoodmap.com"
-    },
-    {
-      "name": "Calvin Metcalf",
-      "email": "calvin.metcalf@gmail.com"
-    },
-    {
-      "name": "Richard Marsden",
-      "url": "http://www.winwaed.com"
-    },
-    {
-      "name": "T. Mittan"
-    },
-    {
-      "name": "D. Steinwand"
-    },
-    {
-      "name": "S. Nelson"
-    }
-  ],
-  "dependencies": {
-    "mgrs": "1.0.0",
-    "wkt-parser": "^1.2.0"
-  },
-  "deprecated": false,
-  "description": "Proj4js is a JavaScript library to transform point coordinates from one coordinate system to another, including datum transformations.",
-  "devDependencies": {
-    "chai": "~4.1.2",
-    "curl-amd": "github:cujojs/curl",
-    "grunt": "^1.0.1",
-    "grunt-cli": "~1.2.0",
-    "grunt-contrib-connect": "~1.0.2",
-    "grunt-contrib-jshint": "~1.1.0",
-    "grunt-contrib-uglify": "~3.1.0",
-    "grunt-mocha-phantomjs": "~4.0.0",
-    "grunt-rollup": "^6.0.0",
-    "istanbul": "~0.4.5",
-    "mocha": "~4.0.0",
-    "rollup": "^0.50.0",
-    "rollup-plugin-json": "^2.3.0",
-    "rollup-plugin-node-resolve": "^3.0.0",
-    "tin": "~0.5.0"
-  },
-  "directories": {
-    "test": "test",
-    "doc": "docs"
-  },
-  "homepage": "https://github.com/proj4js/proj4js#readme",
-  "license": "MIT",
-  "main": "dist/proj4-src.js",
-  "module": "lib/index.js",
-  "name": "proj4",
-  "repository": {
-    "type": "git",
-    "url": "git://github.com/proj4js/proj4js.git"
-  },
-  "scripts": {
-    "build": "grunt",
-    "build:tmerc": "grunt build:tmerc",
-    "test": "npm run build && istanbul test _mocha test/test.js"
-  },
-  "version": "2.5.0"
-}
-;
-},{}],"node_modules/proj4/lib/version.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-Object.defineProperty(exports, "default", {
-  enumerable: true,
-  get: function () {
-    return _package.version;
-  }
-});
-
-var _package = require("../package.json");
-},{"../package.json":"node_modules/proj4/package.json"}],"node_modules/proj4/lib/common/pj_enfn.js":[function(require,module,exports) {
+},{"mgrs":"node_modules/mgrs/mgrs.js"}],"node_modules/proj4/lib/common/pj_enfn.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -69504,7 +69416,7 @@ function forward(p) {
         coslam = -coslam;
       }
 
-      if (Math.abs(phi + this.phi0) < _values.EPSLN) {
+      if (Math.abs(phi + this.lat0) < _values.EPSLN) {
         return null;
       }
 
@@ -69619,7 +69531,7 @@ function inverse(p) {
         break;
 
       case this.OBLIQ:
-        phi = Math.abs(rh) <= _values.EPSLN ? this.phi0 : Math.asin(cosz * this.sinph0 + y * sinz * this.cosph0 / rh);
+        phi = Math.abs(rh) <= _values.EPSLN ? this.lat0 : Math.asin(cosz * this.sinph0 + y * sinz * this.cosph0 / rh);
         x *= sinz * this.cosph0;
         y = (cosz - Math.sin(phi) * this.sinph0) * rh;
         break;
@@ -69644,8 +69556,8 @@ function inverse(p) {
       rho = Math.sqrt(x * x + y * y);
 
       if (rho < _values.EPSLN) {
-        p.x = 0;
-        p.y = this.phi0;
+        p.x = this.long0;
+        p.y = this.lat0;
         return p;
       }
 
@@ -69670,8 +69582,8 @@ function inverse(p) {
       q = x * x + y * y;
 
       if (!q) {
-        p.x = 0;
-        p.y = this.phi0;
+        p.x = this.long0;
+        p.y = this.lat0;
         return p;
       }
 
@@ -71262,7 +71174,7 @@ function forward(p) {
       //default case
       cos_c = this.sin_p12 * sinphi + this.cos_p12 * cosphi * Math.cos(dlon);
       c = Math.acos(cos_c);
-      kp = c / Math.sin(c);
+      kp = c ? c / Math.sin(c) : 1;
       p.x = this.x0 + this.a * kp * cosphi * Math.sin(dlon);
       p.y = this.y0 + this.a * kp * (this.cos_p12 * sinphi - this.sin_p12 * cosphi * Math.cos(dlon));
       return p;
@@ -71322,7 +71234,7 @@ function forward(p) {
 function inverse(p) {
   p.x -= this.x0;
   p.y -= this.y0;
-  var rh, z, sinz, cosz, lon, lat, con, e0, e1, e2, e3, Mlp, M, N1, psi, Az, cosAz, tmp, A, B, D, Ee, F;
+  var rh, z, sinz, cosz, lon, lat, con, e0, e1, e2, e3, Mlp, M, N1, psi, Az, cosAz, tmp, A, B, D, Ee, F, sinpsi;
 
   if (this.sphere) {
     rh = Math.sqrt(p.x * p.x + p.y * p.y);
@@ -71403,7 +71315,8 @@ function inverse(p) {
       F = 1 - A * Ee * Ee / 2 - D * Ee * Ee * Ee / 6;
       psi = Math.asin(this.sin_p12 * Math.cos(Ee) + this.cos_p12 * Math.sin(Ee) * cosAz);
       lon = (0, _adjust_lon.default)(this.long0 + Math.asin(Math.sin(Az) * Math.sin(Ee) / Math.cos(psi)));
-      lat = Math.atan((1 - this.es * F * this.sin_p12 / Math.sin(psi)) * Math.tan(psi) / (1 - this.es));
+      sinpsi = Math.sin(psi);
+      lat = Math.atan2((sinpsi - this.es * F * this.sin_p12) * Math.tan(psi), sinpsi * (1 - this.es));
       p.x = lon;
       p.y = lat;
       return p;
@@ -72116,7 +72029,43 @@ var _default = {
   names: names
 };
 exports.default = _default;
-},{"../constants/values":"node_modules/proj4/lib/constants/values.js","../common/adjust_lon":"node_modules/proj4/lib/common/adjust_lon.js"}],"node_modules/proj4/projs.js":[function(require,module,exports) {
+},{"../constants/values":"node_modules/proj4/lib/constants/values.js","../common/adjust_lon":"node_modules/proj4/lib/common/adjust_lon.js"}],"node_modules/proj4/lib/projections/geocent.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.init = init;
+exports.forward = forward;
+exports.inverse = inverse;
+exports.default = exports.names = void 0;
+
+var _datumUtils = require("../datumUtils");
+
+function init() {
+  this.name = 'geocent';
+}
+
+function forward(p) {
+  var point = (0, _datumUtils.geodeticToGeocentric)(p, this.es, this.a);
+  return point;
+}
+
+function inverse(p) {
+  var point = (0, _datumUtils.geocentricToGeodetic)(p, this.es, this.a, this.b);
+  return point;
+}
+
+var names = ["Geocentric", 'geocentric', "geocent", "Geocent"];
+exports.names = names;
+var _default = {
+  init: init,
+  forward: forward,
+  inverse: inverse,
+  names: names
+};
+exports.default = _default;
+},{"../datumUtils":"node_modules/proj4/lib/datumUtils.js"}],"node_modules/proj4/projs.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -72176,6 +72125,8 @@ var _qsc = _interopRequireDefault(require("./lib/projections/qsc"));
 
 var _robin = _interopRequireDefault(require("./lib/projections/robin"));
 
+var _geocent = _interopRequireDefault(require("./lib/projections/geocent"));
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _default(proj4) {
@@ -72205,8 +72156,9 @@ function _default(proj4) {
   proj4.Proj.projections.add(_ortho.default);
   proj4.Proj.projections.add(_qsc.default);
   proj4.Proj.projections.add(_robin.default);
+  proj4.Proj.projections.add(_geocent.default);
 }
-},{"./lib/projections/tmerc":"node_modules/proj4/lib/projections/tmerc.js","./lib/projections/etmerc":"node_modules/proj4/lib/projections/etmerc.js","./lib/projections/utm":"node_modules/proj4/lib/projections/utm.js","./lib/projections/sterea":"node_modules/proj4/lib/projections/sterea.js","./lib/projections/stere":"node_modules/proj4/lib/projections/stere.js","./lib/projections/somerc":"node_modules/proj4/lib/projections/somerc.js","./lib/projections/omerc":"node_modules/proj4/lib/projections/omerc.js","./lib/projections/lcc":"node_modules/proj4/lib/projections/lcc.js","./lib/projections/krovak":"node_modules/proj4/lib/projections/krovak.js","./lib/projections/cass":"node_modules/proj4/lib/projections/cass.js","./lib/projections/laea":"node_modules/proj4/lib/projections/laea.js","./lib/projections/aea":"node_modules/proj4/lib/projections/aea.js","./lib/projections/gnom":"node_modules/proj4/lib/projections/gnom.js","./lib/projections/cea":"node_modules/proj4/lib/projections/cea.js","./lib/projections/eqc":"node_modules/proj4/lib/projections/eqc.js","./lib/projections/poly":"node_modules/proj4/lib/projections/poly.js","./lib/projections/nzmg":"node_modules/proj4/lib/projections/nzmg.js","./lib/projections/mill":"node_modules/proj4/lib/projections/mill.js","./lib/projections/sinu":"node_modules/proj4/lib/projections/sinu.js","./lib/projections/moll":"node_modules/proj4/lib/projections/moll.js","./lib/projections/eqdc":"node_modules/proj4/lib/projections/eqdc.js","./lib/projections/vandg":"node_modules/proj4/lib/projections/vandg.js","./lib/projections/aeqd":"node_modules/proj4/lib/projections/aeqd.js","./lib/projections/ortho":"node_modules/proj4/lib/projections/ortho.js","./lib/projections/qsc":"node_modules/proj4/lib/projections/qsc.js","./lib/projections/robin":"node_modules/proj4/lib/projections/robin.js"}],"node_modules/proj4/lib/index.js":[function(require,module,exports) {
+},{"./lib/projections/tmerc":"node_modules/proj4/lib/projections/tmerc.js","./lib/projections/etmerc":"node_modules/proj4/lib/projections/etmerc.js","./lib/projections/utm":"node_modules/proj4/lib/projections/utm.js","./lib/projections/sterea":"node_modules/proj4/lib/projections/sterea.js","./lib/projections/stere":"node_modules/proj4/lib/projections/stere.js","./lib/projections/somerc":"node_modules/proj4/lib/projections/somerc.js","./lib/projections/omerc":"node_modules/proj4/lib/projections/omerc.js","./lib/projections/lcc":"node_modules/proj4/lib/projections/lcc.js","./lib/projections/krovak":"node_modules/proj4/lib/projections/krovak.js","./lib/projections/cass":"node_modules/proj4/lib/projections/cass.js","./lib/projections/laea":"node_modules/proj4/lib/projections/laea.js","./lib/projections/aea":"node_modules/proj4/lib/projections/aea.js","./lib/projections/gnom":"node_modules/proj4/lib/projections/gnom.js","./lib/projections/cea":"node_modules/proj4/lib/projections/cea.js","./lib/projections/eqc":"node_modules/proj4/lib/projections/eqc.js","./lib/projections/poly":"node_modules/proj4/lib/projections/poly.js","./lib/projections/nzmg":"node_modules/proj4/lib/projections/nzmg.js","./lib/projections/mill":"node_modules/proj4/lib/projections/mill.js","./lib/projections/sinu":"node_modules/proj4/lib/projections/sinu.js","./lib/projections/moll":"node_modules/proj4/lib/projections/moll.js","./lib/projections/eqdc":"node_modules/proj4/lib/projections/eqdc.js","./lib/projections/vandg":"node_modules/proj4/lib/projections/vandg.js","./lib/projections/aeqd":"node_modules/proj4/lib/projections/aeqd.js","./lib/projections/ortho":"node_modules/proj4/lib/projections/ortho.js","./lib/projections/qsc":"node_modules/proj4/lib/projections/qsc.js","./lib/projections/robin":"node_modules/proj4/lib/projections/robin.js","./lib/projections/geocent":"node_modules/proj4/lib/projections/geocent.js"}],"node_modules/proj4/lib/index.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -72228,8 +72180,6 @@ var _transform = _interopRequireDefault(require("./transform"));
 
 var _mgrs = _interopRequireDefault(require("mgrs"));
 
-var _version = _interopRequireDefault(require("./version"));
-
 var _projs = _interopRequireDefault(require("../projs"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
@@ -72243,11 +72193,11 @@ _core.default.toPoint = _toPoint.default;
 _core.default.defs = _defs.default;
 _core.default.transform = _transform.default;
 _core.default.mgrs = _mgrs.default;
-_core.default.version = _version.default;
+_core.default.version = '__VERSION__';
 (0, _projs.default)(_core.default);
 var _default = _core.default;
 exports.default = _default;
-},{"./core":"node_modules/proj4/lib/core.js","./Proj":"node_modules/proj4/lib/Proj.js","./Point":"node_modules/proj4/lib/Point.js","./common/toPoint":"node_modules/proj4/lib/common/toPoint.js","./defs":"node_modules/proj4/lib/defs.js","./transform":"node_modules/proj4/lib/transform.js","mgrs":"node_modules/mgrs/mgrs.js","./version":"node_modules/proj4/lib/version.js","../projs":"node_modules/proj4/projs.js"}],"node_modules/ol/style/IconAnchorUnits.js":[function(require,module,exports) {
+},{"./core":"node_modules/proj4/lib/core.js","./Proj":"node_modules/proj4/lib/Proj.js","./Point":"node_modules/proj4/lib/Point.js","./common/toPoint":"node_modules/proj4/lib/common/toPoint.js","./defs":"node_modules/proj4/lib/defs.js","./transform":"node_modules/proj4/lib/transform.js","mgrs":"node_modules/mgrs/mgrs.js","../projs":"node_modules/proj4/projs.js"}],"node_modules/ol/style/IconAnchorUnits.js":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -73395,8 +73345,7 @@ function zoomToTileSet(map, bounds) {
   var extent = extentString.map(Number);
 
   if (extent.includes(NaN)) {
-    var message = "<p class='error'>Invalid bounding box in tile metadata.json</p>";
-    document.getElementById('tileSetError').innerHTML = message;
+    // silently ignore if extent cannot be read
     return;
   }
 
@@ -73689,7 +73638,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "37931" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "46625" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
