@@ -1,10 +1,9 @@
 <!DOCTYPE html>
 <html>
-
 <head>
+
+  <title>PDOK Vector Tiles Test Viewer</title>
   <meta charset="utf-8">
-  <title>PDOK Vector Tiles - Ruimtelijke Plannen</title>
-  <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="./style.css" />
   <link rel="apple-touch-icon" sizes="180x180" href="./assets/favicons/apple-touch-icon.png">
@@ -14,7 +13,6 @@
   <link rel="mask-icon" href="./assets/favicons/safari-pinned-tab.svg" color="#1a1e4f">
   <link rel="shortcut icon" href="./assets/favicons/favicon.ico">
 </head>
-
 <body>
   <div id="content">
     <div id="heading">
@@ -25,37 +23,22 @@
               <a class="navbar-brand" href="https://www.pdok.nl" tabindex="1">
                 <img src="./assets/images/logo-pdok.svg" alt="Logo pdok"> </a>
             </div>
-            
           </div>
         </div>
-        
       </nav>
     </div>
-    <!-- <div id="mapbar" style="background-color: white">          
-        <div id="sourceInputWrapper">
-          <input  type="text" id="sourceInput" placeholder="NL.IMRO."><button id="sourceInputButton">OK</button>
-          <div style="display:inline-block;" id="tileSetError"></div>
-        </div>
-  </div> -->
-    <!-- <div style="display:inline-block;" id="tileSetError"></div> -->
     <div id="autocompleteWrapper"></div>
     <div id="mapwrapper">
       <div id="map">
       </div>
-      <div id="sidebar">
-
+      <div id="sidebar"></div>
         <div id="featureinfo">Klik op een object voor attribuut informatie</div>
         <div class="ol-control" id="btnAppCloseWrapper">
           <button id="btnAppClose">&gt;</button>
         </div>
         <div id="tileSetError"></div>
-
-
-        
-     
+      </div>
     </div>
-  </div>
-  <script src="./js/index.js"></script>
+    <script src="./js/index.js"></script>
 </body>
-
 </html>
