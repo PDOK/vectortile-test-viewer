@@ -91,11 +91,8 @@ select:disabled{
 
 @media only screen and (min-width: 1024px)  {
   #sidebar{
-    max-width: 35em;
+    max-width: 30em;
   }
-  .select-wrapper, #styleSelect{
-    width: 33em;
-  } 
 }
 
 #mapwrapper {
