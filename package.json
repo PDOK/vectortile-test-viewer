@@ -1,5 +1,5 @@
 {
-  "name": "poc_vt_dso",
+  "name": "vectortile-test-viewer",
   "version": "1.0.0",
   "main": "index.js",
   "author": "anton.bakker@kadaster.nl",

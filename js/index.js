@@ -28,7 +28,7 @@ const selectionProperty = 'identificatie'
 // global vars
 var controller = new AbortController()
 var signal = controller.signal
-var selection = {}
+var selection = []
 
 // initialize ol objects
 proj4.defs('EPSG:28992', '+proj=sterea +lat_0=52.15616055555555 +lon_0=5.38763888888889 +k=0.9999079 +x_0=155000 +y_0=463000 +ellps=bessel +towgs84=565.417,50.3319,465.552,-0.398957,0.343988,-1.8774,4.0725 +units=m +no_defs')
@@ -63,7 +63,6 @@ const selectedStyle = new Style({
   }),
   zIndex: 100
 })
-
 
 const tileBackgroundLayer = new TileLayer({
   extent: rdProjection.extent,
@@ -201,101 +200,38 @@ function fetchStatusHandler (response) {
   }
 }
 
-var isEqual = function (value, other) {
+var isEqual = function (array1, array2) {
+  return array1.length === array2.length && array1.every((value, index) => value === array2[index])
+}
 
-	// Get the value type
-	var type = Object.prototype.toString.call(value);
-
-	// If the two objects are not the same type, return false
-	if (type !== Object.prototype.toString.call(other)) {
-    console.log(Object.prototype.toString.call(other))
-    console.log(type)
-    console.log("unequal type")
-    return false;}
-
-	// If items are not an object or array, return false
-	if (['[object Array]', '[object Object]'].indexOf(type) < 0) return false;
-
-	// Compare the length of the length of the two items
-	var valueLen = type === '[object Array]' ? value.length : Object.keys(value).length;
-	var otherLen = type === '[object Array]' ? other.length : Object.keys(other).length;
-	if (valueLen !== otherLen) {
-    console.log("unequal length")
-    return false;}
-
-	// Compare two items
-	var compare = function (item1, item2) {
-
-		// Get the object type
-		var itemType = Object.prototype.toString.call(item1);
-
-		// If an object or array, compare recursively
-		if (['[object Array]', '[object Object]'].indexOf(itemType) >= 0) {
-			if (!isEqual(item1, item2)) return false;
-		}
-
-		// Otherwise, do a simple comparison
-		else {
-
-			// If the two items are not the same type, return false
-			if (itemType !== Object.prototype.toString.call(item2)) return false;
-
-			// Else if it's a function, convert to a string and compare
-			// Otherwise, just compare
-			if (itemType === '[object Function]') {
-				if (item1.toString() !== item2.toString()) return false;
-			} else {
-				if (item1 !== item2) return false;
-			}
-
-		}
-	};
-
-	// Compare properties
-	if (type === '[object Array]') {
-		for (var i = 0; i < valueLen; i++) {
-			if (compare(value[i], other[i]) === false) return false;
-		}
-	} else {
-		for (var key in value) {
-			if (value.hasOwnProperty(key)) {
-				if (compare(value[key], other[key]) === false) return false;
-			}
-		}
-	}
-
-	// If nothing failed, return true
-	return true;
-
-};
-
-var highlighted 
+var highlighted
 
 function setEventListenerMap () {
   map.on('click', function (e) {
     let markup = ''
     let features = map.getFeaturesAtPixel(e.pixel, { hitTolerance: 3 })
 
-    let newSelection = {}
-    features.forEach(function(ft){
+    let newSelection = []
+    features.forEach(function (ft) {
       let ftId = ft.get(selectionProperty)
-      newSelection[ftId] = ft
-    }) 
-   
-    if (features != null && features.length > 0) {
-      // add selected feature to lookup
-      if (isEqual(selection, newSelection)){
-        // if equal increment index to highlight next feature
-        let newIndex = ((Object.keys(selection).indexOf(highlighted)) % (Object.keys(selection).length-1))+1
-        highlighted = Object.keys(selection)[newIndex]
-      }else{
-        highlighted = Object.keys(newSelection)[0]
-      }
-      
-      selection = newSelection
+      newSelection.push(ftId)
+    })
 
+    if (features != null && features.length > 0) {
+      // copy array to sort and compare
+      let selCopy = Array.from(selection).sort()
+      let newSelCopy = Array.from(newSelection).sort()
+
+      if (isEqual(selCopy, newSelCopy)) {
+        // if equal increment index to highlight next feature,
+        let newIndex = ((selection.indexOf(highlighted)) % (selection.length - 1)) + 1
+        highlighted = selection[newIndex]
+      } else {
+        highlighted = newSelection[0]
+      }
+      selection = newSelection
       features.forEach(function (feature) {
-        if (feature.get(selectionProperty) === highlighted){
+        if (feature.get(selectionProperty) === highlighted) {
           let properties = feature.getProperties()
           markup += `${markup && '<hr>'}<div><h3>Vector Tile Object</h3><table class='gfitable'>`
           for (let property in properties) {
