@@ -1,11 +1,20 @@
 @font-face {
   font-family: Quicksand;
-  src: url('./assets/fonts/Quicksand-Regular.otf');
+  src: url("./assets/fonts/Quicksand-Regular.otf");
 }
-@import 'pdok-huisstijl/dist/pdok-huisstijl/css/pdok-huisstijl.css';
 
+nav {
+  background-color: #1a1e4f;
+}
 
-html, body {
+nav > img {
+  padding: 12px;
+  height: 60px;
+  padding-left: 1em;
+}
+
+html,
+body {
   margin: 0px;
   background: #f5f5f5;
   font-family: Quicksand;
@@ -15,19 +24,19 @@ html, body {
   height: 30px;
 }
 
-#tileSetError{
-  display:inline-block;
+#tileSetError {
+  display: inline-block;
 }
 
 #map {
-    background-color: white;
-  flex:1;
+  background-color: white;
+  flex: 1;
 }
 
 #sidebar {
-  padding:0.5em;
+  padding: 0.5em;
   display: flex;
-  flex:1;
+  flex: 1;
   flex-flow: column;
   align-items: stretch;
   background-color: white;
@@ -35,74 +44,76 @@ html, body {
   overflow: hidden;
 }
 
-#sourceControl{
+#sourceControl {
   position: absolute;
-  top: .5em;
-  left: .5em;
-  width: 25em
+  top: 0.5em;
+  left: 0.5em;
+  width: 25em;
 }
 
-select:disabled{
+select:disabled {
   color: gray;
 }
 
-#sourceInputButton{
-  border: solid 1px #CFD6E6;
+#sourceInputButton {
+  border: solid 1px #cfd6e6;
   border-radius: 0 3px 3px 0;
   border-left: 0px;
   width: 3em;
 }
 
-#sourceInput{
-  border: solid 1px #CFD6E6;
+#sourceInput {
+  border: solid 1px #cfd6e6;
   border-radius: 3px 0 0 3px;
   width: 21em;
-  padding-left: .5em;
+  padding-left: 0.5em;
 }
 
-
-@media only screen and  (min-width: 0px) and (max-width: 640px)  {
-  .select-wrapper, #styleSelect{
+@media only screen and (min-width: 0px) and (max-width: 640px) {
+  .select-wrapper,
+  #styleSelect {
     width: 90vw;
   }
-  #sourceControl{
+  #sourceControl {
     width: 80vw;
   }
-  #sourceInput{
-    width:calc(80vw - 3em) !important;
+  #sourceInput {
+    width: calc(80vw - 3em) !important;
   }
 }
 
-@media only screen and (min-width: 640px) and (max-width: 1024px)  {
-  #sidebar{
+@media only screen and (min-width: 640px) and (max-width: 1024px) {
+  #sidebar {
     max-width: 21em;
   }
-  .select-wrapper, #styleSelect{
+  .select-wrapper,
+  #styleSelect {
     width: 19em;
   }
-  #sourceControl{
+  #sourceControl {
     width: 19em;
   }
-  #sourceInput{
-    width:16em;
+  #sourceInput {
+    width: 16em;
   }
 }
 
-
-@media only screen and (min-width: 1024px)  {
-  #sidebar{
+@media only screen and (min-width: 1024px) {
+  #sidebar {
     max-width: 30em;
   }
 }
 
 #mapwrapper {
-  flex:1;
+  flex: 1;
   display: flex;
   flex-direction: row;
   padding: 5px;
 }
 
-html, body, #content {
+html,
+body,
+#content {
   height: 100%;
 }
 
@@ -115,13 +126,12 @@ html, body, #content {
   flex-grow: 1;
   position: relative;
   background-color: white;
-  padding: .5em;
+  padding: 0.5em;
 }
 
-#stylebox{
-  padding: .5em;  
+#stylebox {
+  padding: 0.5em;
 }
-
 
 .container {
   margin-right: unset;
@@ -129,11 +139,11 @@ html, body, #content {
 }
 
 .gfitable tr:nth-child(even) {
-  background: #F4F4F4
+  background: #f4f4f4;
 }
 
 .gfitable tr:nth-child(odd) {
-  background: white
+  background: white;
 }
 
 .gfitable {
@@ -149,7 +159,6 @@ html, body, #content {
   animation: spin 2s linear infinite;
   display: inline-block;
 }
-
 
 @keyframes spin {
   0% {
@@ -170,7 +179,8 @@ html, body, #content {
   border: 1px solid #003c88;
 }
 
-.arrow_box:after, .arrow_box:before {
+.arrow_box:after,
+.arrow_box:before {
   top: 100%;
   left: 50%;
   border: solid transparent;
@@ -218,7 +228,7 @@ html, body, #content {
   padding: unset;
 }
 
-#info{
+#info {
   margin-top: auto;
   text-align: center;
   position: relative;
@@ -227,34 +237,34 @@ html, body, #content {
 
 #sidebartop {
   display: flex;
-  flex-flow: column nowrap;  
+  flex-flow: column nowrap;
 }
 
-
-.form-label{
+.form-label {
   font-weight: unset;
-  margin-left:.4em;
-  margin-right:.4em;
+  margin-left: 0.4em;
+  margin-right: 0.4em;
 }
 
-label:hover{
-  text-decoration:unset;
+label:hover {
+  text-decoration: unset;
 }
 
-.form-control::placeholder{
+.form-control::placeholder {
   color: #a7a5a5;
 }
 
-#sourceInputButton, #sourceInput, #styleSelect{
-  height: 36px; 
+#sourceInputButton,
+#sourceInput,
+#styleSelect {
+  height: 36px;
 }
 
-
-#btnAppOpen{
-  display:none;
-  right: .5em;
-  float:right;
-  top: .5em;
+#btnAppOpen {
+  display: none;
+  right: 0.5em;
+  float: right;
+  top: 0.5em;
   display: block;
   border: none;
   color: white;
@@ -262,28 +272,30 @@ label:hover{
   border-radius: 2px;
 }
 
-.ol-rotate{
-  right: .5em !important;
+.ol-rotate {
+  right: 0.5em !important;
   top: 42px !important;
 }
 
-#btnAppCloseWrapper{
+#btnAppCloseWrapper {
   position: absolute;
-  right: .5em;
+  right: 0.5em;
   display: none;
 }
 
-.navbar-header{
+.navbar-header {
   padding: 2px 2px 2px 10px;
 }
 
-#info hr{
+#info hr {
   width: 90%;
   margin-top: 5px;
   margin-bottom: 5px;
 }
 
-* { box-sizing: border-box; }
+* {
+  box-sizing: border-box;
+}
 
 .autocomplete {
   /*the container must be positioned relative:*/
@@ -324,28 +336,24 @@ label:hover{
   color: #ffffff;
 }
 
-
-
-.ol-zoom{
+.ol-zoom {
   top: 3em !important;
 }
 
-
-
 #autocompleteWrapper {
-	position: absolute;
-	margin-top: 3em;
-	z-index: 1000;
+  position: absolute;
+  margin-top: 3em;
+  z-index: 1000;
   width: 100%;
 }
 
-button{
-  background-color: #F5F6F7;
+button {
+  background-color: #f5f6f7;
 }
 
-select{
-  background-color: #F5F6F7;
-  border: solid 1px #CFD6E6;
+select {
+  background-color: #f5f6f7;
+  border: solid 1px #cfd6e6;
   border-radius: 3px;
   -webkit-appearance: none;
   -moz-appearance: none;
@@ -354,7 +362,7 @@ select{
   /* background: url(http://www.stackoverflow.com/favicon.ico) 96% / 15% no-repeat #eee; */
 }
 
-#selectStyle{
+#selectStyle {
   padding: 10px 20px;
 }
 
@@ -363,9 +371,9 @@ select{
 }
 
 .select-wrapper:after {
-  content: '\f0d7';
+  content: "\f0d7";
   font-family: FontAwesome;
-  color: #1A1E4F;
+  color: #1a1e4f;
   display: inline-block;
   position: absolute;
   top: 0.5em;

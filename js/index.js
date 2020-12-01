@@ -21,7 +21,6 @@ import { Fill, Stroke, Style } from 'ol/style'
 // TileDebug can be used to show boundaries of tiling schema
 import TileDebug from 'ol/source/TileDebug'
 
-// set api endpoint based on build env (debug -> .env, production -> .env.production)
 const sidebarEmptyText = 'Klik op een object voor attribuut informatie'
 const selectionProperty = 'identificatie'
 

@@ -7,7 +7,7 @@
   "scripts": {
     "prebuild": "./prebuild && export NODE_ENV=production",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "./prebuild && parcel index.html",
+    "start": "parcel index.html",
     "build": "parcel build --public-url . index.html"
   },
   "devDependencies": {
@@ -24,10 +24,8 @@
     "parcel-bundler": "^1.12.4"
   },
   "dependencies": {
-    "assets": "^3.0.1",
     "normalize.css": "^8.0.1",
     "ol": "^5.3.0",
-    "pdok-huisstijl": "^1.1.5",
     "proj4": "^2.5.0"
   }
 }
