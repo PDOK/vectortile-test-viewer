@@ -5,7 +5,7 @@
   "author": "anton.bakker@kadaster.nl",
   "license": "MIT",
   "scripts": {
-    "prebuild": "./prebuild && export NODE_ENV=production",
+    "prebuild": "export NODE_ENV=production",
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "parcel index.html",
     "build": "parcel build --public-url . index.html"
