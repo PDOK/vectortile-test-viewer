@@ -10,7 +10,7 @@ Na het clonen van dit repo installeer de dependencies, door volgende uit te voer
 npm install .
 ```
 
-Start nu de een applicatie met:
+Start de een applicatie met:
 
 ```
 npm start
@@ -18,6 +18,13 @@ npm start
 
 De viewer is nu beschikbaar op [http://localhost:1234/](http://localhost:1234/).
 
+## Tiles serveren lokaal
+
+Het volgende script kan gebruikt worden om vectortile-sets lokaal uit te serveren:
+
+https://gist.github.com/arbakker/6cc78304be9fd1b2c1dc251e877b918c
+
+
 ## detected vulnerabilities with npm audit
 
-Negeer detected vulnerability "Prototype Pollution in node-forge", [auteur van de parcel-bundler](https://github.com/parcel-bundler/parcel/issues/5145#issuecomment-693228935) is van mening dat het geen vulnerability betreft.
+De vulnerability "Prototype Pollution in node-forge" die met `npm audit` wordt gedetecteerd kan geneerd worden. De [auteur van de parcel-bundler](https://github.com/parcel-bundler/parcel/issues/5145#issuecomment-693228935) is van mening dat het geen vulnerability betreft.
