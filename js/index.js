@@ -205,8 +205,6 @@ function setEventListenerMap() {
   map.on("click", function (e) {
     let markup = "";
     let features = map.getFeaturesAtPixel(e.pixel, { hitTolerance: 3 });
-    console.log("click")
-    console.log(features)
     if (!features){
       highlighted = null;
       vectorTileLayer.changed();
@@ -232,10 +230,8 @@ function setEventListenerMap() {
       } else {
         highlighted = newSelection[0];
       }
-      console.log('hl', highlighted)
       selection = newSelection;
       features.forEach(function (feature) {
-        console.log("test")
         let ftId = feature.get(selectionProperty);
         let layer = feature.get('layer')
      
