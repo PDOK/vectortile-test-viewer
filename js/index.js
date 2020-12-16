@@ -1,91 +1,86 @@
-import 'normalize.css'
-import 'ol/ol.css'
-import { Map, View } from 'ol'
-import MVT from 'ol/format/MVT.js'
-import VectorTileLayer from 'ol/layer/VectorTile.js'
-import VectorTileSource from 'ol/source/VectorTile.js'
-import WMTSSource from 'ol/source/WMTS'
-import TileLayer from 'ol/layer/Tile.js'
-import WMTSTileGrid from 'ol/tilegrid/WMTS.js'
-import Projection from 'ol/proj/Projection'
-import { register } from 'ol/proj/proj4.js'
-import { getTopLeft } from 'ol/extent.js'
-import proj4 from 'proj4'
-import TileGrid from 'ol/tilegrid/TileGrid'
-import { transformExtent } from 'ol/proj.js'
-import { Control } from 'ol/control.js'
-import VectorLayer from 'ol/layer/Vector'
-import VectorSource from 'ol/source/Vector'
-import { Fill, Stroke, Style } from 'ol/style'
-
+import "normalize.css";
+import "ol/ol.css";
+import { Feature, Map, View } from "ol";
+import MVT from "ol/format/MVT.js";
+import VectorTileLayer from "ol/layer/VectorTile.js";
+import VectorTileSource from "ol/source/VectorTile.js";
+import WMTSSource from "ol/source/WMTS";
+import TileLayer from "ol/layer/Tile.js";
+import WMTSTileGrid from "ol/tilegrid/WMTS.js";
+import Projection from "ol/proj/Projection";
+import { register } from "ol/proj/proj4.js";
+import { getTopLeft } from "ol/extent.js";
+import proj4 from "proj4";
+import TileGrid from "ol/tilegrid/TileGrid";
+import { transformExtent } from "ol/proj.js";
+import { Control } from "ol/control.js";
+import VectorLayer from "ol/layer/Vector";
+import VectorSource from "ol/source/Vector";
+import styles from "./style";
 // TileDebug can be used to show boundaries of tiling schema
-import TileDebug from 'ol/source/TileDebug'
+import TileDebug from "ol/source/TileDebug";
+import style from "./style";
 
-const sidebarEmptyText = 'Klik op een object voor attribuut informatie'
-const selectionProperty = 'identificatie'
+const sidebarEmptyText = "Klik op een object voor attribuut informatie";
+const selectionProperty = "identificatie";
 
 // global vars
-var controller = new AbortController()
-var signal = controller.signal
-var selection = []
+var controller = new AbortController();
+var signal = controller.signal;
+var selection = [];
 
 // initialize ol objects
-proj4.defs('EPSG:28992', '+proj=sterea +lat_0=52.15616055555555 +lon_0=5.38763888888889 +k=0.9999079 +x_0=155000 +y_0=463000 +ellps=bessel +towgs84=565.417,50.3319,465.552,-0.398957,0.343988,-1.8774,4.0725 +units=m +no_defs')
-register(proj4)
+proj4.defs(
+  "EPSG:28992",
+  "+proj=sterea +lat_0=52.15616055555555 +lon_0=5.38763888888889 +k=0.9999079 +x_0=155000 +y_0=463000 +ellps=bessel +towgs84=565.417,50.3319,465.552,-0.398957,0.343988,-1.8774,4.0725 +units=m +no_defs"
+);
+register(proj4);
 const rdProjection = new Projection({
-  code: 'EPSG:28992',
-  extent: [-285401.92, 22598.08, 595401.92, 903401.92]
-})
-const resolutions = [3440.640, 1720.320, 860.160, 430.080, 215.040, 107.520, 53.760, 26.880, 13.440, 6.720, 3.360, 1.680, 0.840, 0.420, 0.210]
-const matrixIds = new Array(15)
+  code: "EPSG:28992",
+  extent: [-285401.92, 22598.08, 595401.92, 903401.92],
+});
+const resolutions = [
+  3440.64,
+  1720.32,
+  860.16,
+  430.08,
+  215.04,
+  107.52,
+  53.76,
+  26.88,
+  13.44,
+  6.72,
+  3.36,
+  1.68,
+  0.84,
+  0.42,
+  0.21,
+];
+const matrixIds = new Array(15);
 for (var i = 0; i < 15; ++i) {
-  matrixIds[i] = i
+  matrixIds[i] = i;
 }
-
-const polStyle = new Style({
-  stroke: new Stroke({
-    color: 'blue',
-    width: 1
-  }),
-  fill: new Fill(
-    { color: 'rgba(255, 255, 0, 0.05)' }
-  )
-})
-
-const selectedStyle = new Style({
-  stroke: new Stroke({
-    color: 'rgba(200,20,20,0.8)',
-    width: 2.5
-  }),
-  fill: new Fill({
-    color: 'rgba(200,20,20,0.2)'
-  }),
-  zIndex: 100
-})
 
 const tileBackgroundLayer = new TileLayer({
   extent: rdProjection.extent,
   source: new WMTSSource({
-    url: 'https://geodata.nationaalgeoregister.nl/tiles/service/wmts',
-    layer: 'brtachtergrondkaartgrijs',
-    matrixSet: 'EPSG:28992',
-    format: 'image/png',
+    url: "https://geodata.nationaalgeoregister.nl/tiles/service/wmts",
+    layer: "brtachtergrondkaartgrijs",
+    matrixSet: "EPSG:28992",
+    format: "image/png",
     projection: rdProjection,
     tileGrid: new WMTSTileGrid({
       origin: getTopLeft(rdProjection.getExtent()),
       resolutions: resolutions,
-      matrixIds: matrixIds
+      matrixIds: matrixIds,
     }),
-    style: 'default'
-  })
-})
+    style: "default",
+  }),
+});
 
-const vectorTileLayer = new VectorTileLayer(
-  {
-    rendermode: 'image',
-    style: polStyle
-  }
-)
+const vectorTileLayer = new VectorTileLayer({
+  rendermode: "image",
+});
 
 // TileDebug can be used to show boundaries of tiling schema
 const debugTLayer = new TileLayer({
@@ -96,53 +91,50 @@ const debugTLayer = new TileLayer({
       resolutions: resolutions,
       tileSize: [256, 256],
       projection: rdProjection,
-      matrixSet: 'EPSG:28992',
-      origin: getTopLeft(rdProjection.getExtent())
-    })
-  })
-})
-const bboxSource = new VectorSource()
-const bboxLayer = new VectorLayer({ style: polStyle, source: bboxSource })
+      matrixSet: "EPSG:28992",
+      origin: getTopLeft(rdProjection.getExtent()),
+    }),
+  }),
+});
+const bboxSource = new VectorSource();
+const bboxLayer = new VectorLayer({ style: style.polygonStyle, source: bboxSource });
 
 const map = new Map({
-  layers: [
-    tileBackgroundLayer,
-    vectorTileLayer,
-    debugTLayer,
-    bboxLayer
-  ],
-  target: 'map',
+  layers: [tileBackgroundLayer, vectorTileLayer, debugTLayer, bboxLayer],
+  target: "map",
   view: new View({
     projection: rdProjection,
     center: [102618, 487217],
-    zoom: 2
-  })
-})
+    zoom: 2,
+  }),
+});
 
-function zoomToTileSet (map, bounds) {
-  let boundsString = bounds.replace(']', '').replace('[', '')
-  let extentString = boundsString.split(',')
-  let extent = extentString.map(Number)
+function zoomToTileSet(map, bounds) {
+  let boundsString = bounds.replace("]", "").replace("[", "");
+  let extentString = boundsString.split(",");
+  let extent = extentString.map(Number);
   if (extent.includes(NaN)) {
     // silently ignore if extent cannot be read
-    return
+    return;
   }
-  let extentRd = transformExtent(extent, 'EPSG:4326', rdProjection)
-  map.getView().fit(extentRd, { maxZoom: 11 })
+  let extentRd = transformExtent(extent, "EPSG:4326", rdProjection);
+  map.getView().fit(extentRd, { maxZoom: 11 });
 }
 
-function getVTSource () {
-  let vtSource = window.location.hash
-  if (vtSource === null) { return '' }
-  vtSource = vtSource.substr(1)
-  return vtSource
+function getVTSource() {
+  let vtSource = window.location.hash;
+  if (vtSource === null) {
+    return "";
+  }
+  vtSource = vtSource.substr(1);
+  return vtSource;
 }
 
-function setTileEndpoint (endpoint) {
-  window.location.hash = endpoint
+function setTileEndpoint(endpoint) {
+  window.location.hash = endpoint;
 }
 
-function getVectorTileSource (tileEndpoint) {
+function getVectorTileSource(tileEndpoint) {
   return new VectorTileSource({
     format: new MVT(),
     tileGrid: new TileGrid({
@@ -150,246 +142,290 @@ function getVectorTileSource (tileEndpoint) {
       resolutions: resolutions,
       tileSize: [256, 256],
       projection: rdProjection,
-      matrixSet: 'EPSG:28992',
-      origin: getTopLeft(rdProjection.getExtent())
+      matrixSet: "EPSG:28992",
+      origin: getTopLeft(rdProjection.getExtent()),
     }),
     tilePixelRatio: 16,
     url: `${tileEndpoint}/{z}/{x}/{y}.pbf`,
-    renderBuffer: 10
-  })
+    renderBuffer: 10,
+  });
 }
 
-function changeTileSource (tileEndpoint) {
-  document.getElementById('featureinfo').innerHTML = sidebarEmptyText
-  document.getElementById('sourceInput').value = tileEndpoint
-  selection = {}
-  let vtSource = getVectorTileSource(tileEndpoint)
+function changeTileSource(tileEndpoint) {
+  document.getElementById("featureinfo").innerHTML = sidebarEmptyText;
+  document.getElementById("sourceInput").value = tileEndpoint;
+  selection = {};
+  let vtSource = getVectorTileSource(tileEndpoint);
   // set invisible to prevent unstyled flasing of vectorTileLayer
-  vectorTileLayer.setVisible(false)
-  vectorTileLayer.setSource(vtSource)
-  vectorTileLayer.setVisible(true)
+  vectorTileLayer.setVisible(false);
+  vectorTileLayer.setSource(vtSource);
+  vectorTileLayer.setVisible(true);
 
   // abort (long) running ajax requests
-  controller.abort()
+  controller.abort();
   // refresh abortcontroller
-  controller = new AbortController()
-  signal = controller.signal
+  controller = new AbortController();
+  signal = controller.signal;
   // retrieve metadata/capabilities for selected tileset
-  let metadataJsonUrl = `${tileEndpoint}/metadata.json`
-  let request = new Request(metadataJsonUrl)
+  let metadataJsonUrl = `${tileEndpoint}/metadata.json`;
+  let request = new Request(metadataJsonUrl);
   fetch(request, {
-    signal
+    signal,
   })
     .then(fetchStatusHandler)
-    .then(response => response.json())
+    .then((response) => response.json())
     .then(function (data) {
-      zoomToTileSet(map, data.bounds)
-      setTileEndpoint(tileEndpoint)
-    }).catch(function (error) {
-      console.log(error)
+      zoomToTileSet(map, data.bounds);
+      setTileEndpoint(tileEndpoint);
     })
+    .catch(function (error) {
+      console.log(error);
+    });
 }
 
-function fetchStatusHandler (response) {
+function fetchStatusHandler(response) {
   if (response.status === 200) {
-    return response
+    return response;
   } else {
-    let message = `<p class='error'>${response.url} returned HTTP ${response.status}</p>`
-    document.getElementById('tileSetError').innerHTML = message
+    let message = `<p class='error'>${response.url} returned HTTP ${response.status}</p>`;
+    document.getElementById("tileSetError").innerHTML = message;
   }
 }
 
 var isEqual = function (array1, array2) {
-  return array1.length === array2.length && array1.every((value, index) => value === array2[index])
-}
+  return (
+    array1.length === array2.length &&
+    array1.every((value, index) => value === array2[index])
+  );
+};
 
-var highlighted
+var highlighted;
 
-function setEventListenerMap () {
-  map.on('click', function (e) {
-    let markup = ''
-    let features = map.getFeaturesAtPixel(e.pixel, { hitTolerance: 3 })
-
-    let newSelection = []
+function setEventListenerMap() {
+  map.on("click", function (e) {
+    let markup = "";
+    let features = map.getFeaturesAtPixel(e.pixel, { hitTolerance: 3 });
+    console.log("click")
+    console.log(features)
+    if (!features){
+      highlighted = null;
+      vectorTileLayer.changed();
+      return
+    }
+    let newSelection = [];
     features.forEach(function (ft) {
-      let ftId = ft.get(selectionProperty)
-      newSelection.push(ftId)
-    })
+      let ftId = ft.get(selectionProperty);
+      let layer = ft.get('layer')
+      newSelection.push(`${layer}-${ftId}`);
+    });
 
     if (features != null && features.length > 0) {
       // copy array to sort and compare
-      let selCopy = Array.from(selection).sort()
-      let newSelCopy = Array.from(newSelection).sort()
+      let selCopy = Array.from(selection).sort();
+      let newSelCopy = Array.from(newSelection).sort();
 
       if (isEqual(selCopy, newSelCopy)) {
         // if equal increment index to highlight next feature,
-        let newIndex = ((selection.indexOf(highlighted)) % (selection.length - 1)) + 1
-        highlighted = selection[newIndex]
+        let newIndex =
+          (selection.indexOf(highlighted) % (selection.length - 1)) + 1;
+        highlighted = selection[newIndex];
       } else {
-        highlighted = newSelection[0]
+        highlighted = newSelection[0];
       }
-      selection = newSelection
+      console.log('hl', highlighted)
+      selection = newSelection;
       features.forEach(function (feature) {
-        if (feature.get(selectionProperty) === highlighted) {
-          let properties = feature.getProperties()
-          markup += `${markup && '<hr>'}<div><h3>Vector Tile Object</h3><table class='gfitable'>`
+        console.log("test")
+        let ftId = feature.get(selectionProperty);
+        let layer = feature.get('layer')
+     
+        if ( `${layer}-${ftId}` === highlighted) {
+          let properties = feature.getProperties();
+          markup += `${
+            markup && "<hr>"
+          }<div><h3>Vector Tile Object</h3><table class='gfitable'>`;
           for (let property in properties) {
-            markup += `<tr><th>${property}</th><td>${properties[property]}</td></tr>`
+            markup += `<tr><th>${property}</th><td>${properties[property]}</td></tr>`;
           }
-          markup += '</table>'
+          markup += "</table>";
         }
-      })
+      });
     }
-    if (markup === '') {
-      markup = sidebarEmptyText
+    if (markup === "") {
+      markup = sidebarEmptyText;
     }
-    document.getElementById('featureinfo').innerHTML = markup
-    vectorTileLayer.changed()
-  })
+    document.getElementById("featureinfo").innerHTML = markup;
+    vectorTileLayer.changed();
+  });
 }
 
-function changesourceInput () {
-  const sourceInput = document.getElementById('sourceInput')
-  let sourceInputText = sourceInput.value
-  if (sourceInputText !== '') {
-    changeTileSource(sourceInputText)
+function changesourceInput() {
+  const sourceInput = document.getElementById("sourceInput");
+  let sourceInputText = sourceInput.value;
+  if (sourceInputText !== "") {
+    changeTileSource(sourceInputText);
   }
 }
-function setEventListenersourceInputButton () {
-  const sourceButton = document.getElementById('sourceInputButton')
-  sourceButton.addEventListener('click', function (event) {
-    event.preventDefault()
-    changesourceInput()
-  }, false)
+function setEventListenersourceInputButton() {
+  const sourceButton = document.getElementById("sourceInputButton");
+  sourceButton.addEventListener(
+    "click",
+    function (event) {
+      event.preventDefault();
+      changesourceInput();
+    },
+    false
+  );
 }
 
-function toggleElements () {
-  let headingEl = document.getElementById('heading')
-  let sidebarEl = document.getElementById('sidebar')
-  let btnEl = document.getElementById('btnAppOpen')
+function toggleElements() {
+  let headingEl = document.getElementById("heading");
+  let sidebarEl = document.getElementById("sidebar");
+  let btnEl = document.getElementById("btnAppOpen");
   if (window.innerWidth < 640) {
-    headingEl.style.display = 'none'
-    sidebarEl.style.display = 'none'
-    btnEl.style.display = 'block'
+    headingEl.style.display = "none";
+    sidebarEl.style.display = "none";
+    btnEl.style.display = "block";
   } else {
-    headingEl.style.display = 'block'
-    sidebarEl.style.display = 'flex'
-    btnEl.style.display = 'none'
+    headingEl.style.display = "block";
+    sidebarEl.style.display = "flex";
+    btnEl.style.display = "none";
   }
-  let contentEl = document.getElementById('content')
-  contentEl.style.display = 'none'
+  let contentEl = document.getElementById("content");
+  contentEl.style.display = "none";
   // eslint-disable-next-line no-unused-expressions
-  contentEl.offsetHeight
-  contentEl.style.display = 'block'
+  contentEl.offsetHeight;
+  contentEl.style.display = "block";
 }
 
-function resizeApp () {
-  let mapEl = document.getElementById('map')
-  if (mapEl.style.display === 'none') {
-    toggleSidebar()
+function resizeApp() {
+  let mapEl = document.getElementById("map");
+  if (mapEl.style.display === "none") {
+    toggleSidebar();
   }
-  toggleElements()
-  let headingEl = document.getElementById('heading')
-  let sidebarEl = document.getElementById('sidebar')
-  let mapWrapperEl = document.getElementById('mapwrapper')
-  let styleHeading = window.getComputedStyle(headingEl)
-  let headingElHeight = parseInt(styleHeading.height.replace('px', ''))
-  let mapHeight
+  toggleElements();
+  let headingEl = document.getElementById("heading");
+  let sidebarEl = document.getElementById("sidebar");
+  let mapWrapperEl = document.getElementById("mapwrapper");
+  let styleHeading = window.getComputedStyle(headingEl);
+  let headingElHeight = parseInt(styleHeading.height.replace("px", ""));
+  let mapHeight;
 
   if (window.innerWidth < 640) {
-    mapHeight = window.innerHeight
-    mapWrapperEl.style.padding = '0px'
-    sidebarEl.style.marginLeft = '0px'
+    mapHeight = window.innerHeight;
+    mapWrapperEl.style.padding = "0px";
+    sidebarEl.style.marginLeft = "0px";
   } else {
-    mapHeight = window.innerHeight - headingElHeight
-    mapWrapperEl.style.padding = '5px'
-    sidebarEl.style.marginLeft = '5px'
+    mapHeight = window.innerHeight - headingElHeight;
+    mapWrapperEl.style.padding = "5px";
+    sidebarEl.style.marginLeft = "5px";
   }
-  mapWrapperEl.style.height = `${mapHeight}px`
-  var siteHeader = document.getElementById('content')
-  map.updateSize()
-  siteHeader.style.display = 'none'
+  mapWrapperEl.style.height = `${mapHeight}px`;
+  var siteHeader = document.getElementById("content");
+  map.updateSize();
+  siteHeader.style.display = "none";
   // eslint-disable-next-line no-unused-expressions
-  siteHeader.offsetHeight
-  siteHeader.style.display = 'block'
+  siteHeader.offsetHeight;
+  siteHeader.style.display = "block";
 }
 
-function addControl () {
-  let button = document.createElement('button')
-  button.innerHTML = '&lt'
-  let myElement = document.createElement('div')
-  myElement.className = 'ol-control'
-  myElement.id = 'btnAppOpen'
-  myElement.appendChild(button)
-  let myControl = new Control({ element: myElement })
-  map.addControl(myControl)
+function addControl() {
+  let button = document.createElement("button");
+  button.innerHTML = "&lt";
+  let myElement = document.createElement("div");
+  myElement.className = "ol-control";
+  myElement.id = "btnAppOpen";
+  myElement.appendChild(button);
+  let myControl = new Control({ element: myElement });
+  map.addControl(myControl);
 }
 
-function addVTSourceInput () {
-  let parent = document.createElement('div')
-  let input = document.createElement('input')
-  let button = document.createElement('button')
-  parent.id = 'sourceControl'
-  button.innerText = 'OK'
-  button.id = 'sourceInputButton'
-  input.placeholder = 'tile endpoint'
-  input.id = 'sourceInput'
-  input.type = 'text'
-  input.autocomplete = 'off'
-  parent.appendChild(input)
-  parent.appendChild(button)
-  let myControl = new Control({ element: parent })
-  map.addControl(myControl)
+function addVTSourceInput() {
+  let parent = document.createElement("div");
+  let input = document.createElement("input");
+  let button = document.createElement("button");
+  parent.id = "sourceControl";
+  button.innerText = "OK";
+  button.id = "sourceInputButton";
+  input.placeholder = "tile endpoint";
+  input.id = "sourceInput";
+  input.type = "text";
+  input.autocomplete = "off";
+  parent.appendChild(input);
+  parent.appendChild(button);
+  let myControl = new Control({ element: parent });
+  map.addControl(myControl);
 }
 
-function toggleSidebar () {
-  let sidebarEl = document.getElementById('sidebar')
-  let mapEl = document.getElementById('map')
-  let btnClose = document.getElementById('btnAppCloseWrapper')
-  if (sidebarEl.style.display === 'none') {
-    sidebarEl.style.display = 'flex'
-    mapEl.style.display = 'none'
-    btnClose.style.display = 'inline-block'
-    sidebarEl.style.maxWidth = 'unset'
+function toggleSidebar() {
+  let sidebarEl = document.getElementById("sidebar");
+  let mapEl = document.getElementById("map");
+  let btnClose = document.getElementById("btnAppCloseWrapper");
+  if (sidebarEl.style.display === "none") {
+    sidebarEl.style.display = "flex";
+    mapEl.style.display = "none";
+    btnClose.style.display = "inline-block";
+    sidebarEl.style.maxWidth = "unset";
   } else {
-    btnClose.style.display = 'none'
-    sidebarEl.style.display = 'none'
-    mapEl.style.display = 'block'
-    sidebarEl.style.maxWidth = '20em'
+    btnClose.style.display = "none";
+    sidebarEl.style.display = "none";
+    mapEl.style.display = "block";
+    sidebarEl.style.maxWidth = "20em";
   }
 }
 
-function setEventListenerAppButton () {
-  let btnApp = document.getElementById('btnAppOpen')
-  let btnAppClose = document.getElementById('btnAppClose')
-  btnApp.addEventListener('click', toggleSidebar, false)
-  btnAppClose.addEventListener('click', toggleSidebar, false)
+function setEventListenerAppButton() {
+  let btnApp = document.getElementById("btnAppOpen");
+  let btnAppClose = document.getElementById("btnAppClose");
+  btnApp.addEventListener("click", toggleSidebar, false);
+  btnAppClose.addEventListener("click", toggleSidebar, false);
 }
 
-function setEventListeners () {
-  window.addEventListener('resize', resizeApp)
-  setEventListenerMap()
-  setEventListenersourceInputButton()
-  setEventListenerAppButton()
+function setEventListeners() {
+  window.addEventListener("resize", resizeApp);
+  setEventListenerMap();
+  setEventListenersourceInputButton();
+  setEventListenerAppButton();
 }
 
-function initApp () {
-  addControl()
-  addVTSourceInput()
-  resizeApp()
-  setEventListeners()
-  let vtSource = getVTSource()
-  if (vtSource !== '') {
-    changeTileSource(vtSource)
+function initApp() {
+  addControl();
+  addVTSourceInput();
+  resizeApp();
+  setEventListeners();
+  let vtSource = getVTSource();
+  if (vtSource !== "") {
+    changeTileSource(vtSource);
   }
 
   vectorTileLayer.setStyle(function (feature, resolution) {
-    if (feature.get(selectionProperty) === highlighted) {
-      return selectedStyle
-    } else {
-      return polStyle
+    let geomType = feature.getType().toLowerCase();
+    let ftId = feature.get(selectionProperty);
+    let layer = feature.get('layer')
+    let selected = `${layer}-${ftId}` === highlighted
+
+    if (geomType.includes("point")) {
+      if (selected) {
+        return style.pointSelectedStyle;
+      } else {
+        return style.pointStyle;
+      }
+    } else if (geomType.includes("linestring")) {
+      if (selected) {
+        return style.linestringSelectedStyle;
+      } else {
+        return style.linestringStyle;
+      }
+    } else if (geomType.includes("polygon")) {
+      if (selected) {
+        return style.polygonSelectedStyle;
+      } else {
+        return style.polygonStyle;
+      }
     }
-  })
+
+   
+  });
 }
 
-initApp()
+initApp();
