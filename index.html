@@ -1,7 +1,10 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>PDOK Vector Tiles Test Viewer</title>
+  <title>Omgevingswet Vector Tile Service Viewer</title>
+  <meta name="description" content="Mapviewer voor het debuggen van vector tile services voor de omgevingswet (gehost door PDOK)">
+  <meta name="keywords" content="Kadaster,PDOK,omgevingswet,vector tiles,mvt,OpenLayers,mapviewer">
+  <meta name="author" content="Anton Bakker">
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="./style.css" />
@@ -24,6 +27,10 @@
           <button id="btnAppClose">&gt;</button>
         </div>
         <div id="tileSetError"></div>
+        <div style="border-top: solid lightgray 1px;margin-top:1em;padding-top:1em;">
+        <button id="copyUrl" title="Kopieer deelbare URL">Kopieer URL</button>
+        <button id="deselect" title="Deselecteer">Deselecteer</button>
+        </div>
       </div>
     </div>
   </div>

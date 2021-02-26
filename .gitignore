@@ -27,3 +27,4 @@ test/fixtures/**/.fbkpm
 .vscode/
 .cache/
 gh-pages/
+.parcel-cache/

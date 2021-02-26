@@ -1,4 +1,4 @@
-import { Stroke, Style, Fill, Circle } from "ol/style";
+import { Stroke, Style, Fill, Circle } from 'ol/style'
 
 const yellow = [255, 255, 150, 0.5]
 const white = [255, 255, 255, 1]
@@ -9,95 +9,93 @@ const strokeWidth = 4
 const pointWidth = 3.5
 
 const linestringStyle = [new Style({
-    stroke: new Stroke({
-        color: white,
-        width: strokeWidth * 2,
-    }),
+  stroke: new Stroke({
+    color: white,
+    width: strokeWidth * 2
+  })
 }),
 new Style({
-    stroke: new Stroke({
-        color: blue,
-        width: strokeWidth,
-    }),
-}),
-];
+  stroke: new Stroke({
+    color: blue,
+    width: strokeWidth
+  })
+})
+]
 const linestringSelectedStyle = [new Style({
-    stroke: new Stroke({
-        color: white,
-        width: strokeWidth * 2,
-    }),
+  stroke: new Stroke({
+    color: white,
+    width: strokeWidth * 2
+  })
 }),
 new Style({
-    stroke: new Stroke({
-        color: red,
-        width: strokeWidth,
-    }),
-}),
-];
-
+  stroke: new Stroke({
+    color: red,
+    width: strokeWidth
+  })
+})
+]
 
 const polygonStyle = [
-    new Style({
-        fill: new Fill({ color: yellow }),
-    }),
-    new Style({
-        stroke: new Stroke({
-            color: white,
-            width: strokeWidth * 2,
-        }),
-    }),
-    new Style({
-        stroke: new Stroke({
-            color: blue,
-            width: strokeWidth,
-        }),
-    }),
-];
+  new Style({
+    fill: new Fill({ color: yellow })
+  }),
+  new Style({
+    stroke: new Stroke({
+      color: white,
+      width: strokeWidth * 2
+    })
+  }),
+  new Style({
+    stroke: new Stroke({
+      color: blue,
+      width: strokeWidth
+    })
+  })
+]
 
 const polygonSelectedStyle = [
-    new Style({
-        fill: new Fill({ color: redFill }),
-        zIndex: 100
+  new Style({
+    fill: new Fill({ color: redFill }),
+    zIndex: 100
+  }),
+  new Style({
+    stroke: new Stroke({
+      color: white,
+      width: strokeWidth * 2
     }),
-    new Style({
-        stroke: new Stroke({
-            color: white,
-            width: strokeWidth * 2,
-        }),
-        zIndex: 100
+    zIndex: 100
+  }),
+  new Style({
+    stroke: new Stroke({
+      color: red,
+      width: strokeWidth
     }),
-    new Style({
-        stroke: new Stroke({
-            color: red,
-            width: strokeWidth,
-        }),
-        zIndex: 100
-    }),
-];
+    zIndex: 100
+  })
+]
 const pointStyle = [
-    new Style({
-        image: new Circle({
-            radius: pointWidth * 2,
-            fill: new Fill({ color: blue }),
-            stroke: new Stroke({
-                color: white,
-                width: pointWidth / 2,
-            }),
-        }),
+  new Style({
+    image: new Circle({
+      radius: pointWidth * 2,
+      fill: new Fill({ color: blue }),
+      stroke: new Stroke({
+        color: white,
+        width: pointWidth / 2
+      })
     })
-];
+  })
+]
 const pointSelectedStyle = [
-    new Style({
-        image: new Circle({
-            radius: pointWidth * 2,
-            fill: new Fill({ color: red }),
-            stroke: new Stroke({
-                color: white,
-                width: pointWidth / 2,
-            }),
-        }),
+  new Style({
+    image: new Circle({
+      radius: pointWidth * 2,
+      fill: new Fill({ color: red }),
+      stroke: new Stroke({
+        color: white,
+        width: pointWidth / 2
+      })
     })
-];
-
+  })
+]
 
 export default { pointStyle, linestringStyle, polygonStyle, pointSelectedStyle, linestringSelectedStyle, polygonSelectedStyle }
