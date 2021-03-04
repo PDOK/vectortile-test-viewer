@@ -1,5 +1,5 @@
-import 'normalize.css'
 import 'ol/ol.css'
+import 'autocompleter/autocomplete.css'
 import { Map, View } from 'ol'
 import MVT from 'ol/format/MVT.js'
 import VectorTileLayer from 'ol/layer/VectorTile.js'
@@ -18,16 +18,11 @@ import TileDebug from 'ol/source/TileDebug'
 import style from './style'
 import FilterControl from './filter-control'
 import SourceControl from './source-control'
+import LocationServerControl from './lokatie-server-control'
 
 const sidebarEmptyText = 'Klik op een object voor attribuut informatie'
 const selectionProperty = 'identificatie'
 
-// global vars
-var controller = new AbortController()
-var signal = controller.signal
-var selection = []
-
-// initialize ol objects
 proj4.defs(
   'EPSG:28992',
   '+proj=sterea +lat_0=52.15616055555555 +lon_0=5.38763888888889 +k=0.9999079 +x_0=155000 +y_0=463000 +ellps=bessel +towgs84=565.417,50.3319,465.552,-0.398957,0.343988,-1.8774,4.0725 +units=m +no_defs'
@@ -75,12 +70,6 @@ const vectorTileLayer = new VectorTileLayer({
   rendermode: 'image',
   useInterimTilesOnError: false
 })
-var vtSource
-
-customElements.define('filter-control', FilterControl)
-const filterControl = document.createElement('filter-control')
-customElements.define('source-control', SourceControl)
-const sourceControl = document.createElement('source-control')
 
 // TileDebug can be used to show boundaries of tiling schema
 // off by one vertically
@@ -179,22 +168,6 @@ function initMapFromUrl () {
   }
   window.location.hash = ``
 }
-document.getElementById('deselect').addEventListener('click', function (e) {
-  highlighted = null
-  vectorTileLayer.changed()
-  document.getElementById('featureinfo').innerHTML = ''
-})
-document.getElementById('copyUrl').addEventListener('click', function (e) {
-  let hash = handleMapEvents()
-  let sharableUrl = `${window.location.href}${hash}`
-  navigator.clipboard.writeText(sharableUrl).then(function () {
-    let prevColor = e.target.style.color
-    e.target.style.color = 'green'
-    setTimeout(x => { e.target.style.color = prevColor }, 300)
-  }, function (err) {
-    alert('Async: Could not copy text: ', err)
-  })
-}, false)
 
 function changeTileSource () {
   let tileEndpoint = sourceControl.getUrl()
@@ -202,25 +175,16 @@ function changeTileSource () {
   // document.getElementById('sourceInput').value = tileEndpoint
   selection = {}
   vtSource = getVectorTileSource(tileEndpoint)
-  // set invisible to prevent unstyled flasing of vectorTileLayer
+  // set invisible to prevent unstyled flashing of vectorTileLayer
   vectorTileLayer.setVisible(false)
   vectorTileLayer.setSource(vtSource)
   vectorTileLayer.setVisible(true)
-
-  // abort (long) running ajax requests
-  controller.abort()
-  // refresh abortcontroller
-  controller = new AbortController()
-  signal = controller.signal
-  // retrieve metadata/capabilities for selected tileset
 }
 
 function zoomToTileSet () {
   let tileEndpoint = sourceControl.getUrl()
   let metadataJsonUrl = `${tileEndpoint}/metadata.json`
-  fetch(metadataJsonUrl, {
-    signal
-  })
+  fetch(metadataJsonUrl)
     .then((response) => fetchStatusHandler(response))
     .then((response) => { return response.json() })
     .then(function (data) {
@@ -247,13 +211,13 @@ function fetchStatusHandler (response) {
   }
 }
 
-var isEqual = function (array1, array2) {
+function isEqual (array1, array2) {
   return (
     array1.length === array2.length &&
-    array1.every((value, index) => value === array2[index])
+        array1.every((value, index) => value === array2[index])
   )
 }
-var highlighted
+
 function setEventListenerMap () {
   map.on('click', function (e) {
     let markup = ''
@@ -278,7 +242,7 @@ function setEventListenerMap () {
       if (isEqual(selCopy, newSelCopy)) {
         // if equal increment index to highlight next feature,
         let newIndex =
-          (selection.indexOf(highlighted) % (selection.length - 1)) + 1
+                    (selection.indexOf(highlighted) % (selection.length - 1)) + 1
         highlighted = selection[newIndex]
       } else {
         highlighted = newSelection[0]
@@ -317,66 +281,9 @@ function filterInputButtonClickHandler (event) {
   vectorTileLayer.setStyle(styleFunction)
 }
 
-function toggleElements () {
-  let headingEl = document.getElementById('heading')
-  let sidebarEl = document.getElementById('sidebar')
-  let btnEl = document.getElementById('btnAppOpen')
-  if (window.innerWidth < 640) {
-    headingEl.style.display = 'none'
-    sidebarEl.style.display = 'none'
-    btnEl.style.display = 'block'
-  } else {
-    headingEl.style.display = 'block'
-    sidebarEl.style.display = 'flex'
-    btnEl.style.display = 'none'
-  }
-  let contentEl = document.getElementById('content')
-  contentEl.style.display = 'none'
-  // eslint-disable-next-line no-unused-expressions
-  contentEl.offsetHeight
-  contentEl.style.display = 'block'
-}
-
-function resizeApp () {
-  let mapEl = document.getElementById('map')
-  if (mapEl.style.display === 'none') {
-    toggleSidebar()
-  }
-  toggleElements()
-  let headingEl = document.getElementById('heading')
-  let sidebarEl = document.getElementById('sidebar')
-  let mapWrapperEl = document.getElementById('mapwrapper')
-  let styleHeading = window.getComputedStyle(headingEl)
-  let headingElHeight = parseInt(styleHeading.height.replace('px', ''))
-  let mapHeight
-
-  if (window.innerWidth < 640) {
-    mapHeight = window.innerHeight
-    mapWrapperEl.style.padding = '0px'
-    sidebarEl.style.marginLeft = '0px'
-  } else {
-    mapHeight = window.innerHeight - headingElHeight
-    mapWrapperEl.style.padding = '5px'
-    sidebarEl.style.marginLeft = '5px'
-  }
-  mapWrapperEl.style.height = `${mapHeight}px`
-  var siteHeader = document.getElementById('content')
-  map.updateSize()
-  siteHeader.style.display = 'none'
-  // eslint-disable-next-line no-unused-expressions
-  siteHeader.offsetHeight
-  siteHeader.style.display = 'block'
-}
-
-function addControl () {
-  let button = document.createElement('button')
-  button.innerHTML = '&lt'
-  let myElement = document.createElement('div')
-  myElement.className = 'ol-control'
-  myElement.id = 'btnAppOpen'
-  myElement.appendChild(button)
-  let myControl = new Control({ element: myElement })
-  map.addControl(myControl)
+function locationSelectedHandler (event) {
+  let extentRd = transformExtent(event.detail.extent, 'EPSG:3857', rdProjection)
+  map.getView().fit(extentRd, { maxZoom: 9 })
 }
 
 function addVTSourceInput () {
@@ -392,41 +299,40 @@ function addFilterInput () {
   filterControl.addEventListener('select-changed', filterInputButtonClickHandler, false)
 }
 
-function toggleSidebar () {
-  let sidebarEl = document.getElementById('sidebar')
-  let mapEl = document.getElementById('map')
-  let btnClose = document.getElementById('btnAppCloseWrapper')
-  if (sidebarEl.style.display === 'none') {
-    sidebarEl.style.display = 'flex'
-    mapEl.style.display = 'none'
-    btnClose.style.display = 'inline-block'
-    sidebarEl.style.maxWidth = 'unset'
-  } else {
-    btnClose.style.display = 'none'
-    sidebarEl.style.display = 'none'
-    mapEl.style.display = 'block'
-    sidebarEl.style.maxWidth = '20em'
-  }
-}
-
-function setEventListenerAppButton () {
-  let btnApp = document.getElementById('btnAppOpen')
-  let btnAppClose = document.getElementById('btnAppClose')
-  btnApp.addEventListener('click', toggleSidebar, false)
-  btnAppClose.addEventListener('click', toggleSidebar, false)
+function addLsInput () {
+  let myControl = new Control({ element: lsCOntrol })
+  map.addControl(myControl)
+  lsCOntrol.addEventListener('location-selected', locationSelectedHandler, false)
 }
 
 function setEventListeners () {
-  window.addEventListener('resize', resizeApp)
   setEventListenerMap()
-  setEventListenerAppButton()
+
+  // deselect button
+  document.getElementById('deselect').addEventListener('click', function (e) {
+    highlighted = null
+    vectorTileLayer.changed()
+    document.getElementById('featureinfo').innerHTML = ''
+  })
+
+  // copy url button
+  document.getElementById('copyUrl').addEventListener('click', function (e) {
+    let hash = handleMapEvents()
+    let sharableUrl = `${window.location.href}${hash}`
+    navigator.clipboard.writeText(sharableUrl).then(function () {
+      let prevColor = e.target.style.color
+      e.target.style.color = 'green'
+      setTimeout(x => { e.target.style.color = prevColor }, 300)
+    }, function (err) {
+      alert('Async: Could not copy text: ', err)
+    })
+  }, false)
 }
 
 function styleFunction (feature, resolution) {
   let geomType = feature.getType().toLowerCase()
   let filterString = filterControl.getFilter()
   let filterMode = filterControl.getFilterMode()
-
   let ftId = feature.get(selectionProperty)
   let filters = filterString !== '' ? filterString.split(',') : []
   filters = filters.map(x => x.trim())
@@ -455,39 +361,26 @@ function styleFunction (feature, resolution) {
   }
   let layer = feature.get('layer')
   let selected = `${layer}-${ftId}` === highlighted
-  return getStyleByGeomType(geomType, selected)
-}
-
-function getStyleByGeomType (geomType, selected) {
-  if (geomType.includes('point')) {
-    if (selected) {
-      return style.pointSelectedStyle
-    } else {
-      return style.pointStyle
-    }
-  } else if (geomType.includes('linestring')) {
-    if (selected) {
-      return style.linestringSelectedStyle
-    } else {
-      return style.linestringStyle
-    }
-  } else if (geomType.includes('polygon')) {
-    if (selected) {
-      return style.polygonSelectedStyle
-    } else {
-      return style.polygonStyle
-    }
-  }
+  return style.getStyleByGeomType(geomType, selected)
 }
 
 function initApp () {
-  addControl()
   addVTSourceInput()
   addFilterInput()
-  resizeApp()
+  addLsInput()
   setEventListeners()
   vectorTileLayer.setStyle(styleFunction)
   initMapFromUrl()
 }
 
+customElements.define('filter-control', FilterControl)
+const filterControl = document.createElement('filter-control')
+customElements.define('source-control', SourceControl)
+const sourceControl = document.createElement('source-control')
+customElements.define('locatieserver-control', LocationServerControl)
+const lsCOntrol = document.createElement('locatieserver-control')
+
+var highlighted
+var selection
+var vtSource
 initApp()

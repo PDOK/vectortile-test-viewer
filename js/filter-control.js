@@ -1,4 +1,3 @@
-// import style from './component-style'
 import style from 'bundle-text:./component-style.css'
 
 class FilterControl extends HTMLElement {
@@ -27,6 +26,9 @@ class FilterControl extends HTMLElement {
         }
         #filterControlButton{
           border-left:  solid 1px #cfd6e6;
+        }
+        input[type=text]{
+          border-radius: 3px 0 0 3px;
         }
       `
 

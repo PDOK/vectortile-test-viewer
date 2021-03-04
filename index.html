@@ -1,8 +1,10 @@
 <!DOCTYPE html>
 <html>
+
 <head>
   <title>Omgevingswet Vector Tile Service Viewer</title>
-  <meta name="description" content="Mapviewer voor het debuggen van vector tile services voor de omgevingswet (gehost door PDOK)">
+  <meta name="description"
+    content="Mapviewer voor het debuggen van vector tile services voor de omgevingswet (gehost door PDOK)">
   <meta name="keywords" content="Kadaster,PDOK,omgevingswet,vector tiles,mvt,OpenLayers,mapviewer">
   <meta name="author" content="Anton Bakker">
   <meta charset="utf-8">
@@ -10,30 +12,27 @@
   <link rel="stylesheet" href="./style.css" />
   <link rel="icon" type="image/png" sizes="16x16" href="./assets/images/favicon.png">
 </head>
+
 <body>
-  <div id="content">
-    <div id="heading">
-      <nav>
-        <img src="./assets/images/logo-pdok.svg" alt="Logo pdok"> </a>
-       </nav> 
+  <div class="container">
+    <div class="nav">
+
+      <img src="./assets/images/logo-pdok.svg" alt="Logo pdok"></a>
+
     </div>
-    <div id="autocompleteWrapper"></div>
-    <div id="mapwrapper">
+    <div id="content">
       <div id="map"></div>
-   
       <div id="sidebar">
         <div id="featureinfo">Klik op een object voor attribuut informatie</div>
-        <div class="ol-control" id="btnAppCloseWrapper">
-          <button id="btnAppClose">&gt;</button>
-        </div>
         <div id="tileSetError"></div>
         <div style="border-top: solid lightgray 1px;margin-top:1em;padding-top:1em;">
-        <button id="copyUrl" title="Kopieer deelbare URL">Kopieer URL</button>
-        <button id="deselect" title="Deselecteer">Deselecteer</button>
+          <button id="copyUrl" title="Kopieer deelbare URL">Kopieer URL</button>
+          <button id="deselect" title="Deselecteer">Deselecteer</button>
         </div>
       </div>
     </div>
+    <script src="./js/index.js"></script>
   </div>
-  <script src="./js/index.js"></script>
 </body>
+
 </html>

@@ -98,4 +98,26 @@ const pointSelectedStyle = [
   })
 ]
 
-export default { pointStyle, linestringStyle, polygonStyle, pointSelectedStyle, linestringSelectedStyle, polygonSelectedStyle }
+function getStyleByGeomType (geomType, selected) {
+  if (geomType.includes('point')) {
+    if (selected) {
+      return pointSelectedStyle
+    } else {
+      return pointStyle
+    }
+  } else if (geomType.includes('linestring')) {
+    if (selected) {
+      return linestringSelectedStyle
+    } else {
+      return linestringStyle
+    }
+  } else if (geomType.includes('polygon')) {
+    if (selected) {
+      return polygonSelectedStyle
+    } else {
+      return polygonStyle
+    }
+  }
+}
+
+export default { getStyleByGeomType, pointStyle, linestringStyle, polygonStyle, pointSelectedStyle, linestringSelectedStyle, polygonSelectedStyle }

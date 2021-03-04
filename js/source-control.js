@@ -1,4 +1,3 @@
-// import style from './component-style'
 import style from 'bundle-text:./component-style.css'
 import serviceEndpoints from './service-endpoints'
 

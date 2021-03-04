@@ -1,340 +1,105 @@
+:root {
+    --nav-height: 3em;
+    --sidebar-width: 35%;
+  }
+
+  
 @font-face {
-  font-family: Quicksand;
-  src: url("./assets/fonts/Quicksand-Regular.otf");
-}
-
-nav {
-  background-color: #1a1e4f;
-}
-
-nav > img {
-  padding: 12px;
-  height: 60px;
-  padding-left: 1em;
-}
+    font-family: Quicksand;
+    src: url("./assets/fonts/Quicksand-Regular.otf");
+  }
 
 html,
 body {
-  margin: 0px;
-  background: #f5f5f5;
-  font-family: Quicksand;
-}
-
-.navbar-brand img {
-  height: 30px;
-}
-
-#tileSetError {
-  display: inline-block;
-}
-
-#map {
-  background-color: white;
-  flex: 1;
-}
-
-#sidebar {
-  padding: 0.5em;
-  display: flex;
-  flex: 1;
-  flex-flow: column;
-  align-items: stretch;
-  background-color: white;
-  margin-left: 5px;
-  overflow: hidden;
-}
-
-#sourceControl {
-  position: absolute;
-  top: 0.5em;
-  left: 0.5em;
-  width: 25em;
-}
-
-
-
-select:disabled {
-  color: gray;
-}
-
-
-#filterControl{
-  background-color: white;
-}
-
-
-@media only screen and (min-width: 0px) and (max-width: 640px) {
-  .select-wrapper,
-  #styleSelect {
-    width: 90vw;
-  }
-  #sourceControl,  #filterControl {
-    width: 80vw;
-  }
-  #sourceInput, #filterInput {
-    width: calc(80vw - 3em) !important;
-  }
-}
-
-@media only screen and (min-width: 640px) and (max-width: 1024px) {
-  #sidebar {
-    max-width: 21em;
-  }
-  .select-wrapper,
-  #styleSelect {
-    width: 19em;
-  }
-  #sourceControl,  #filterControl {
-    width: 19em;
-  }
-  #sourceInput, #filterInput {
-    width: 16em;
-  }
-}
-
-@media only screen and (min-width: 1024px) {
-  #sidebar {
-    max-width: 30em;
-  }
-}
-
-#mapwrapper {
-  flex: 1;
-  display: flex;
-  flex-direction: row;
-  padding: 5px;
-}
-
-html,
-body,
-#content {
-  height: 100%;
-}
-
-.error {
-  color: red;
-}
-
-#sidebarinfo {
-  overflow: auto;
-  flex-grow: 1;
-  position: relative;
-  background-color: white;
-  padding: 0.5em;
-}
-
-#stylebox {
-  padding: 0.5em;
+    margin: 0;
+    height: 100%;
+    font-family: Quicksand;
 }
 
 .container {
-  margin-right: unset;
-  margin-left: unset;
+    height        : 100%;
+    display       : flex;
+    flex-direction: column;
+    overflow: hidden;
 }
 
-.gfitable tr:nth-child(even) {
-  background: #f4f4f4;
+.nav {
+    height: var(--nav-height);
+    background-color:  #1a1e4f;
+    position: relative;
+    vertical-align:center;
+}
+.nav>img{
+    height:50%;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    margin: auto;
+    margin-left:1em;
 }
 
-.gfitable tr:nth-child(odd) {
-  background: white;
+#content {
+    min-height: 0;
+    flex      : 1;
+    display: flex;
+    flex-grow: initial;
+    flex-shrink: initial;
+    /* height:100%; */
 }
 
-.gfitable {
-  width: 100%;
+#sidebar{
+    flex: var(--sidebar-width);
+    flex-grow: 0;     
+    flex-shrink: 0; 
+    padding: 0.5em;
 }
 
-.loader {
-  border: 16px solid #f3f3f3;
-  border-top: 16px solid #3498db;
-  border-radius: 50%;
-  width: 50px;
-  height: 50px;
-  animation: spin 2s linear infinite;
-  display: inline-block;
+#map{
+    /* height:100vh; */
+    height: calc(100vh - var(--nav-height));
+    flex: calc(100% - var(--sidebar-width));
+    flex-grow: 0;     
+    flex-shrink: 0; 
 }
 
-@keyframes spin {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
+  
+button {
+    border: solid 1px #cfd6e6;
+    border-radius: 3px;
+    height: 36px;
 }
-.arrow_box {
-  position: relative;
-  background: #000;
-  border: 1px solid #003c88;
-}
-
-.arrow_box:after,
-.arrow_box:before {
-  top: 100%;
-  left: 50%;
-  border: solid transparent;
-  content: " ";
-  height: 0;
-  width: 0;
-  position: absolute;
-  pointer-events: none;
-}
-
-.arrow_box:after {
-  border-color: rgba(0, 0, 0, 0);
-  border-top-color: #000;
-  border-width: 10px;
-  margin-left: -10px;
-}
-
-.arrow_box:before {
-  border-color: rgba(0, 60, 136, 0);
-  border-top-color: #003c88;
-  border-width: 11px;
-  margin-left: -11px;
-}
-
-.arrow_box {
-  border-radius: 5px;
-  padding: 10px;
-  opacity: 0.8;
-  background-color: black;
-  color: white;
-}
-
-#popup-content {
-  max-height: 200px;
-  overflow: auto;
-}
-
-#popup-content th {
-  text-align: left;
-  width: 125px;
-}
-
-#info ul {
-  list-style-type: none;
-  padding: unset;
-}
-
-#info {
-  margin-top: auto;
-  text-align: center;
-  position: relative;
-  bottom: 0px;
-}
-
-#sidebartop {
-  display: flex;
-  flex-flow: column nowrap;
-}
-
-.form-label {
-  font-weight: unset;
-  margin-left: 0.4em;
-  margin-right: 0.4em;
-}
-
-label:hover {
-  text-decoration: unset;
-}
-
-.form-control::placeholder {
-  color: #a7a5a5;
-}
-
-
-
-#btnAppOpen {
-  display: none;
-  right: 0.5em;
-  float: right;
-  top: 0.5em;
-  display: block;
-  border: none;
-  color: white;
-  font-weight: bold;
-  border-radius: 2px;
-}
-
-.ol-rotate {
-  right: 0.5em !important;
-  top: 42px !important;
-}
-
-#btnAppCloseWrapper {
-  position: absolute;
-  right: 0.5em;
-  display: none;
-}
-
-.navbar-header {
-  padding: 2px 2px 2px 10px;
-}
-
-#info hr {
-  width: 90%;
-  margin-top: 5px;
-  margin-bottom: 5px;
-}
-
-* {
-  box-sizing: border-box;
-}
-
 
 .ol-zoom {
-  top: 3em !important;
+    top: 3em !important;
+  }
+
+#sourceControl {
+    position: absolute;
+    top: 0.5em;
+    left: 0.5em;
+    width: 25em;
 }
 
-#autocompleteWrapper {
-  position: absolute;
-  margin-top: 3em;
-  z-index: 1000;
-  width: 100%;
-}
+  @media only screen and (min-width: 1024px) {
+    #sidebar {
+      max-width: 30em;
+    }
+  }
 
-button {
-  background-color: #f5f6f7;
-}
+  .autocomplete{
+    background-color:white;
+    position: absolute;
+    width: auto  !important;
+  }
+  .autocomplete>div{
+    background-color:white !important;
+    display: block;
+    border-bottom: solid 1px rgb(207, 207, 207);
+    padding: 0.1em;
+    line-height: 1.5;
+    white-space:nowrap;
+  }
 
-select {
-  background-color: #f5f6f7;
-  border: solid 1px #cfd6e6;
-  border-radius: 3px;
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  appearance: none;
-  padding: 5px 35px 5px 5px;
-  /* background: url(http://www.stackoverflow.com/favicon.ico) 96% / 15% no-repeat #eee; */
-}
-
-#selectStyle {
-  padding: 10px 20px;
-}
-
-.select-wrapper {
-  position: relative;
-}
-
-.select-wrapper:after {
-  content: "\f0d7";
-  font-family: FontAwesome;
-  color: #1a1e4f;
-  display: inline-block;
-  position: absolute;
-  top: 0.5em;
-  right: 1em;
-  pointer-events: none;
-  size: 1em;
-}
-
-
-
-
-
-button {
-	border: solid 1px #cfd6e6;
-	border-radius: 3px;
-  height: 36px;
-}
+  .autocomplete>div.selected{
+    background-color:rgb(224, 224, 224) !important;
+  }
