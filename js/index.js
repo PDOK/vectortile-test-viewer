@@ -383,13 +383,13 @@ function addVTSourceInput () {
   sourceControl.id = 'sourceControl'
   let myControl = new Control({ element: sourceControl })
   map.addControl(myControl)
-  sourceControl.addEventListener('control-button-clicked', sourceInputButtonClickHandler, false)
+  sourceControl.addEventListener('select-changed', sourceInputButtonClickHandler, false)
 }
 
 function addFilterInput () {
   let myControl = new Control({ element: filterControl })
   map.addControl(myControl)
-  filterControl.addEventListener('control-button-clicked', filterInputButtonClickHandler, false)
+  filterControl.addEventListener('select-changed', filterInputButtonClickHandler, false)
 }
 
 function toggleSidebar () {

@@ -33,7 +33,6 @@ class SourceControl extends HTMLElement {
             ${dataListString}
             
             </select>
-            <button  class="control" id="sourceControlButton">OK</button>
         </div>
     `
 
@@ -62,8 +61,8 @@ class SourceControl extends HTMLElement {
   }
 
   connectedCallback () {
-    this.shadow.getElementById('sourceControlButton').addEventListener('click', (event) => {
-      this.dispatchEvent(new CustomEvent('control-button-clicked', { bubbles: true, composed: true, detail: { id: this.id } })) // dispatch event, so that parent can loop and deselect other items
+    this.shadow.getElementById('sourceInput').addEventListener('change', (event) => {
+      this.dispatchEvent(new CustomEvent('select-changed', { bubbles: true, composed: true, detail: { id: this.id } })) // dispatch event, so that parent can loop and deselect other items
     })
   }
 }
