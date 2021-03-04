@@ -18,7 +18,6 @@ import TileDebug from 'ol/source/TileDebug'
 import style from './style'
 import FilterControl from './filter-control'
 import SourceControl from './source-control'
-import serviceEndpoints from './service-endpoints'
 
 const sidebarEmptyText = 'Klik op een object voor attribuut informatie'
 const selectionProperty = 'identificatie'
@@ -47,7 +46,8 @@ const resolutions = [
   107.52,
   53.76,
   26.88,
-  13.44
+  13.44,
+  6.72
 ]
 const matrixIds = new Array(8)
 for (var i = 0; i < 15; ++i) {
