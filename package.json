@@ -28,7 +28,7 @@
     "postcss": "^8.2.6"
   },
   "dependencies": {
-    "autocompleter": "^6.1.0",
+    "datalist-polyfill": "^1.24.4",
     "normalize.css": "^8.0.1",
     "ol": "^5.3.0",
     "proj4": "^2.5.0"
