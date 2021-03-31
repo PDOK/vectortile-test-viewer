@@ -5,5 +5,4 @@ var serviceEndpoints = [
   { 'name': 'pre-prod', 'url': 'https://service.pdok.nl/omgevingswet/omgevingsdocumenten-preprod/wmts/v1_0-preprod/locaties/EPSG:28992' },
   { 'name': 'prod', 'url': 'https://service.pdok.nl/omgevingswet/omgevingsdocumenten/wmts/v1_0/locaties/EPSG:28992' }
 ]
-
 export default serviceEndpoints
