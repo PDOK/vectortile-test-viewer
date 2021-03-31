@@ -278,7 +278,7 @@ function filterInputButtonClickHandler (event) {
 
 function locationSelectedHandler (event) {
   let extentRd = transformExtent(event.detail.extent, 'EPSG:3857', rdProjection)
-  map.getView().fit(extentRd, { maxZoom: 9 })
+  map.getView().fit(extentRd, { maxZoom: 14 })
 }
 
 function overzoomChangedHandler (event) {
