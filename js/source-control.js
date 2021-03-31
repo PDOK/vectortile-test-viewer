@@ -27,7 +27,6 @@ class SourceControl extends HTMLElement {
       `
     _template.innerHTML = `
         <div id="sourceControl" class="parentControl">
-
         <select  id="sourceInput">
             ${dataListString}
             

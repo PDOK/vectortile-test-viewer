@@ -18,6 +18,7 @@ import style from './style'
 import FilterControl from './filter-control'
 import SourceControl from './source-control'
 import LocationServerControl from './locatie-server-control'
+import OverzoomControl from './overzoom-control'
 
 const sidebarEmptyText = 'Klik op een object voor attribuut informatie'
 const selectionProperty = 'identificatie'
@@ -31,21 +32,15 @@ const rdProjection = new Projection({
   code: 'EPSG:28992',
   extent: [-285401.92, 22598.08, 595401.92, 903401.92]
 })
-const resolutions = [
-  3440.64,
-  1720.32,
-  860.16,
-  430.08,
-  215.04,
-  107.52,
-  53.76,
-  26.88,
-  13.44,
-  6.72
-]
-const matrixIds = new Array(8)
-for (var i = 0; i < 15; ++i) {
-  matrixIds[i] = i
+
+const matrixIds = Array(15).fill().map((x, i) => i)
+const resolutions = matrixIds.map(x => 3440.64 / 2 ** (x))
+
+function getMatrixIdsVt (z = 9) {
+  return Array(z + 1).fill().map((x, i) => i)
+}
+function getResolutionsVt (z = 9) {
+  return getMatrixIdsVt(z).map(x => 3440.64 / 2 ** (x))
 }
 
 const tileBackgroundLayer = new TileLayer({
@@ -104,6 +99,7 @@ function getFragementQuery () {
 }
 
 function getVectorTileSource (tileEndpoint) {
+  let resolutions = getResolutionsVt(overzoomControl.getZoom())
   return new VectorTileSource({
     format: new MVT(),
     tileGrid: new TileGrid({
@@ -285,6 +281,10 @@ function locationSelectedHandler (event) {
   map.getView().fit(extentRd, { maxZoom: 9 })
 }
 
+function overzoomChangedHandler (event) {
+  changeTileSource()
+}
+
 function addVTSourceInput () {
   sourceControl.id = 'sourceControl'
   let myControl = new Control({ element: sourceControl })
@@ -302,6 +302,12 @@ function addLsInput () {
   let myControl = new Control({ element: lsCOntrol })
   map.addControl(myControl)
   lsCOntrol.addEventListener('location-selected', locationSelectedHandler, false)
+}
+
+function addOverzoomInput () {
+  let myControl = new Control({ element: overzoomControl })
+  map.addControl(myControl)
+  overzoomControl.addEventListener('overzoom-changed', overzoomChangedHandler, false)
 }
 
 function setEventListeners () {
@@ -367,6 +373,7 @@ function initApp () {
   addVTSourceInput()
   addFilterInput()
   addLsInput()
+  addOverzoomInput()
   setEventListeners()
   vectorTileLayer.setStyle(styleFunction)
   initMapFromUrl()
@@ -378,6 +385,8 @@ customElements.define('source-control', SourceControl)
 const sourceControl = document.createElement('source-control')
 customElements.define('locatieserver-control', LocationServerControl)
 const lsCOntrol = document.createElement('locatieserver-control')
+customElements.define('overzoom-control', OverzoomControl)
+const overzoomControl = document.createElement('overzoom-control')
 
 var highlighted
 var selection
