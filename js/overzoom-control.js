@@ -44,6 +44,12 @@ class OverzoomControl extends HTMLElement {
     return parseInt(this.shadow.getElementById('overzoomInput').value)
   }
 
+  setZoom (z) {
+    let sel = this.shadow.getElementById('overzoomInput')
+    let selector = `option[value="${z}"]`
+    sel.querySelector(selector).selected = true
+  }
+
   connectedCallback () {
     this.shadow.getElementById('overzoomInput').addEventListener('change', (event) => {
       let val = event.target.value

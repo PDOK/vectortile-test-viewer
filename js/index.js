@@ -152,7 +152,7 @@ function initMapFromUrl () {
   if (fragQuery && fragQuery.get('source')) {
     sourceControl.setSelectedByName(fragQuery.get('source'))
   }
-  changeTileSource()
+  changeTileSourceWithDefaultZoom()
   if (fragQuery && fragQuery.get('x') && fragQuery.get('y') && fragQuery.get('z')) {
     const center = [parseFloat(fragQuery.get('x')), parseFloat(fragQuery.get('y'))]
     map.getView().setCenter(center)
@@ -162,6 +162,26 @@ function initMapFromUrl () {
     zoomToTileSet()
   }
   window.location.hash = ``
+}
+
+function changeTileSourceWithDefaultZoom () {
+  let sourceUrl = sourceControl.getUrl()
+  // retrieve url that ends with `vX_X/`, input url:
+  // https://service.pdok.nl/omgevingswet/omgevingsdocumenten-demo/wmts/v1_0/locaties/EPSG:28992
+  let myRegex = new RegExp('(v[0-9]+_[0-9]+.*?/)')
+  if (sourceUrl.match(myRegex)) {
+    let splitResult = sourceUrl.split(myRegex)
+    let capabilitiesUrl = `${splitResult[0]}${splitResult[1]}WMTSCapabilities.xml`
+    fetch(capabilitiesUrl)
+      .then((response) => {
+        return response.text()
+      })
+      .then((text) => {
+        let maxZoom = getMaxZoomCapabilities(text)
+        overzoomControl.setZoom(maxZoom)
+        changeTileSource()
+      })
+  }
 }
 
 function changeTileSource () {
@@ -266,9 +286,22 @@ function setEventListenerMap () {
   })
 }
 
-function sourceInputButtonClickHandler (event) {
+function getMaxZoomCapabilities (xmlString) {
+  let parser = new DOMParser()
+  let xmlDoc = parser.parseFromString(xmlString, 'text/xml')
+  let tileMatrixSets = xmlDoc.querySelectorAll('TileMatrixSet>Identifier')
+  let rdTileMatrixSet = null
+  tileMatrixSets.forEach(function (tm) {
+    if (tm.innerHTML === 'EPSG:28992') {
+      rdTileMatrixSet = tm.parentElement
+    }
+  })
+  let maxZoom = rdTileMatrixSet.lastElementChild.querySelector('Identifier').innerHTML
+  return maxZoom
+}
+function sourceInputButtonChangeHandler (event) {
   event.preventDefault()
-  changeTileSource()
+  changeTileSourceWithDefaultZoom()
 }
 
 function filterInputButtonClickHandler (event) {
@@ -289,7 +322,7 @@ function addVTSourceInput () {
   sourceControl.id = 'sourceControl'
   let myControl = new Control({ element: sourceControl })
   map.addControl(myControl)
-  sourceControl.addEventListener('select-changed', sourceInputButtonClickHandler, false)
+  sourceControl.addEventListener('select-changed', sourceInputButtonChangeHandler, false)
 }
 
 function addFilterInput () {
