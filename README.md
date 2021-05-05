@@ -1,4 +1,5 @@
-# Vector Tile Test Viewer
+# Vector Tile Test Viewer - voor omgevingswet
+
 
 Test viewer voor het inspecteren van vector tile sets in RD (EPSG:28992). 
 
