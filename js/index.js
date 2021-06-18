@@ -136,8 +136,8 @@ function handleMapEvents () {
 
   const filter = filterControl.getFilter()
   const filterInclude = filterControl.getFilterMode()
-
-  const hashSearchParams = new URLSearchParams({ x, y, z, source, filter, filterInclude })
+  let overzoomLevel = overzoomControl.getZoom()
+  const hashSearchParams = new URLSearchParams({ x, y, z, source, filter, filterInclude, overzoomLevel })
   const hashSearchParamsString = hashSearchParams.toString()
   return hashSearchParamsString
 }
@@ -150,10 +150,21 @@ function initMapFromUrl () {
     filterMode = filterMode !== 'false'
     filterControl.setFilterMode(filterMode)
   }
+  let overzoomSetInUrl = false
+  if (fragQuery && fragQuery.get('overzoomLevel')) {
+    const overzoom =  Number(fragQuery.get('overzoomLevel'))
+    overzoomControl.setZoom(overzoom)
+    overzoomSetInUrl = true
+  }
   if (fragQuery && fragQuery.get('source')) {
     sourceControl.setSelectedByName(fragQuery.get('source'))
   }
-  changeTileSourceWithDefaultZoom()
+  if (overzoomSetInUrl){
+    changeTileSource()
+  }else{
+    changeTileSourceWithDefaultZoom()
+  }
+
   if (fragQuery && fragQuery.get('x') && fragQuery.get('y') && fragQuery.get('z')) {
     const center = [parseFloat(fragQuery.get('x')), parseFloat(fragQuery.get('y'))]
     map.getView().setCenter(center)
