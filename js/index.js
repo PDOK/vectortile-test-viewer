@@ -46,9 +46,10 @@ function getResolutionsVt (z = 9) {
 const tileBackgroundLayer = new TileLayer({
   extent: rdProjection.extent,
   source: new WMTSSource({
-    url: 'https://geodata.nationaalgeoregister.nl/tiles/service/wmts',
-    layer: 'brtachtergrondkaartgrijs',
+    url: 'https://service.pdok.nl/brt/achtergrondkaart/wmts/v2_0',
+    layer: 'grijs',
     matrixSet: 'EPSG:28992',
+    crossOrigin: 'Anonymous',
     format: 'image/png',
     projection: rdProjection,
     tileGrid: new WMTSTileGrid({
