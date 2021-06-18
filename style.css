@@ -28,15 +28,29 @@ body {
     background-color:  #1a1e4f;
     position: relative;
     vertical-align:center;
+    display: flex;
+    align-items: center;
 }
-.nav>img{
-    height:50%;
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    margin: auto;
-    margin-left:1em;
+.nav div{
+  height:50%;
+  margin-left: 1em;
+  margin-right: 1em;
 }
+.nav img, .nav svg{
+  max-width:100%;
+  max-height:100%;
+}
+
+.nav-child-right{
+  margin-left: auto !important;
+  order: 2;
+  height:40%;
+}
+
+.octicon{
+  fill: white;
+}
+
 
 #content {
     min-height: 0;
