@@ -21,7 +21,7 @@ class SourceControl extends HTMLElement {
       // names must be equal
       return 0;
     });
-    
+
 
     serviceEndpoints.forEach(src => {
       let selString = first ? 'selected' : ''

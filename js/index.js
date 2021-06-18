@@ -19,6 +19,7 @@ import FilterControl from './filter-control'
 import SourceControl from './source-control'
 import LocationServerControl from './locatie-server-control'
 import OverzoomControl from './overzoom-control'
+import { setSearchParams, getSearchParams } from './util'
 
 const sidebarEmptyText = 'Klik op een object voor attribuut informatie'
 const selectionProperty = 'identificatie'
@@ -100,7 +101,9 @@ function getFragementQuery () {
 }
 
 function getVectorTileSource (tileEndpoint) {
-  let resolutions = getResolutionsVt(overzoomControl.getZoom())
+  let overzoom = overzoomControl.getZoom()
+  console.log(`getVectorTileSource ${overzoom}`)
+  let resolutions = getResolutionsVt(overzoom)
   return new VectorTileSource({
     format: new MVT(),
     tileGrid: new TileGrid({
@@ -142,38 +145,47 @@ function handleMapEvents () {
   return hashSearchParamsString
 }
 
+
+
+
 function initMapFromUrl () {
-  const fragQuery = getFragementQuery()
-  if (fragQuery && fragQuery.get('filter') && fragQuery.get('filterInclude')) {
-    filterControl.setFilter(fragQuery.get('filter'))
-    let filterMode = fragQuery.get('filterInclude')
+  // const fragQuery = getFragementQuery()
+  let searchParams = getSearchParams()
+
+  if (searchParams.has('filter') && searchParams.has('filterInclude')){
+    filterControl.setFilter(searchParams.get('filter'))
+    let filterMode = searchParams.get('filterInclude')
     filterMode = filterMode !== 'false'
-    filterControl.setFilterMode(filterMode)
+    filterControl.setFilterMode(filterMode)  
   }
-  let overzoomSetInUrl = false
-  if (fragQuery && fragQuery.get('overzoomLevel')) {
-    const overzoom =  Number(fragQuery.get('overzoomLevel'))
-    overzoomControl.setZoom(overzoom)
-    overzoomSetInUrl = true
+
+  
+  // let overzoomSetInUrl = false
+  // if (searchParams.has('overzoomLevel')) {
+  //   const overzoom =  parseInt(searchParams.get('overzoomLevel'))
+  //   overzoomControl.setZoom(overzoom)
+  //   console.log(`overzoom: ${overzoom}`)
+  //   overzoomSetInUrl = true
+  // }
+  if (searchParams.has('source')) {
+    sourceControl.setSelectedByName(searchParams.get('source'))
   }
-  if (fragQuery && fragQuery.get('source')) {
-    sourceControl.setSelectedByName(fragQuery.get('source'))
-  }
+
   if (overzoomSetInUrl){
     changeTileSource()
   }else{
     changeTileSourceWithDefaultZoom()
   }
 
-  if (fragQuery && fragQuery.get('x') && fragQuery.get('y') && fragQuery.get('z')) {
-    const center = [parseFloat(fragQuery.get('x')), parseFloat(fragQuery.get('y'))]
+  if (searchParams.has('x') && searchParams.has('y') && searchParams.has('z')) {
+    const center = [parseFloat(searchParams.get('x')), parseFloat(searchParams.get('y'))]
     map.getView().setCenter(center)
-    const zoom = Number(fragQuery.get('z'))
+    const zoom = Number(searchParams.get('z'))
     map.getView().setZoom(zoom)
   } else {
     zoomToTileSet()
   }
-  window.location.hash = ``
+  // window.location.hash = ``
 }
 
 function changeTileSourceWithDefaultZoom () {
@@ -245,7 +257,33 @@ function isEqual (array1, array2) {
   )
 }
 
+function updateStateZoom() {
+  const searchParams = getSearchParams()
+  const view = map.getView();
+  const center = view.getCenter()
+  searchParams.set("x", center[0].toString())
+  searchParams.set("y", center[1].toString())
+  searchParams.set("z", view.getZoom().toString())
+  setSearchParams(searchParams)
+}
+
+function updateStateOverzoom(overzoom) {
+  const searchParams = getSearchParams()
+  searchParams.set("overzoomLevel", overzoom)
+  setSearchParams(searchParams)
+}
+
+function updateStateSource(sourceName) {
+  const searchParams = getSearchParams()
+  searchParams.set("source", sourceName)
+  setSearchParams(searchParams)
+}
+
 function setEventListenerMap () {
+  map.on('moveend', function(e) {
+    updateStateZoom()
+  })
+
   map.on('click', function (e) {
     let markup = ''
     let features = map.getFeaturesAtPixel(e.pixel, { hitTolerance: 3 })
@@ -313,6 +351,7 @@ function getMaxZoomCapabilities (xmlString) {
 }
 function sourceInputButtonChangeHandler (event) {
   event.preventDefault()
+  updateStateSource(sourceControl.getName())
   changeTileSourceWithDefaultZoom()
 }
 
@@ -327,6 +366,7 @@ function locationSelectedHandler (event) {
 }
 
 function overzoomChangedHandler (event) {
+  updateStateOverzoom(overzoomControl.getZoom())
   changeTileSource()
 }
 
@@ -335,6 +375,8 @@ function addVTSourceInput () {
   let myControl = new Control({ element: sourceControl })
   map.addControl(myControl)
   sourceControl.addEventListener('select-changed', sourceInputButtonChangeHandler, false)
+  // call updateStateSource to properly init url
+  updateStateSource(sourceControl.getName())
 }
 
 function addFilterInput () {
@@ -349,10 +391,14 @@ function addLsInput () {
   lsCOntrol.addEventListener('location-selected', locationSelectedHandler, false)
 }
 
-function addOverzoomInput () {
+function addOverzoomInput (oz) {
   let myControl = new Control({ element: overzoomControl })
   map.addControl(myControl)
+  if (oz){
+    overzoomControl.setZoom(oz)
+  }
   overzoomControl.addEventListener('overzoom-changed', overzoomChangedHandler, false)
+  updateStateOverzoom(overzoomControl.getZoom())
 }
 
 function setEventListeners () {
@@ -367,7 +413,7 @@ function setEventListeners () {
 
   // copy url button
   document.getElementById('copyUrl').addEventListener('click', function (e) {
-    let hash = handleMapEvents()
+    // let hash = handleMapEvents()
     let sharableUrl = `${window.location.href}${hash}`
     navigator.clipboard.writeText(sharableUrl).then(function () {
       let prevColor = e.target.style.color
@@ -415,13 +461,31 @@ function styleFunction (feature, resolution) {
 }
 
 function initApp () {
-  addVTSourceInput()
+  let searchParams = getSearchParams()
+  let oz = searchParams.get('overzoomLevel')
+  
+  addOverzoomInput(oz)
   addFilterInput()
   addLsInput()
-  addOverzoomInput()
+  addVTSourceInput()
+
   setEventListeners()
   vectorTileLayer.setStyle(styleFunction)
-  initMapFromUrl()
+  
+  if (oz){
+    changeTileSource()
+  }else{
+    changeTileSourceWithDefaultZoom()
+  }
+  if (searchParams.has('x') && searchParams.has('y') && searchParams.has('z')) {
+    const center = [parseFloat(searchParams.get('x')), parseFloat(searchParams.get('y'))]
+    map.getView().setCenter(center)
+    const zoom = Number(searchParams.get('z'))
+    map.getView().setZoom(zoom)
+  } else {
+    zoomToTileSet()
+  }
+  
 }
 
 customElements.define('filter-control', FilterControl)

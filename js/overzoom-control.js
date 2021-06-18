@@ -1,5 +1,7 @@
 import style from 'bundle-text:./component-style.css'
 
+const DEFAULT_OVERZOOM_VAL = 9
+
 class OverzoomControl extends HTMLElement {
   constructor () {
     super()
@@ -7,7 +9,7 @@ class OverzoomControl extends HTMLElement {
     const _template = document.createElement('template')
     let dataListString = ''
     Array(15).fill().map((x, i) => i).forEach(x => {
-      let selString = x === 9 ? 'selected' : ''
+      let selString = x === DEFAULT_OVERZOOM_VAL ? 'selected' : ''
       dataListString = dataListString.concat(`<option ${selString} value="${x}">${x}</option>`)
     })
     _style.innerHTML = `
@@ -46,7 +48,7 @@ class OverzoomControl extends HTMLElement {
 
   setZoom (z) {
     let sel = this.shadow.getElementById('overzoomInput')
-    let selector = `option[value="${z}"]`
+    let selector = `option[value="${z}"]` 
     sel.querySelector(selector).selected = true
   }
 
