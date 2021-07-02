@@ -61,10 +61,14 @@ const tileBackgroundLayer = new TileLayer({
   })
 })
 
-const vectorTileLayer = new VectorTileLayer({
-  rendermode: 'image',
-  useInterimTilesOnError: false
-})
+const vectorTileLayer = new VectorTileLayer(
+
+  {
+    renderMode: 'hybrid',
+    opacity: 0.8,
+    declutter: true,
+    useInterimTilesOnError: false
+  })
 
 // TileDebug can be used to show boundaries of tiling schema
 // off by one vertically
@@ -103,6 +107,7 @@ function getVectorTileSource (tileEndpoint) {
   let resolutions = getResolutionsVt(overzoomControl.getZoom())
   return new VectorTileSource({
     format: new MVT(),
+    projection: rdProjection,
     tileGrid: new TileGrid({
       extent: rdProjection.getExtent(),
       resolutions: resolutions,
@@ -111,9 +116,7 @@ function getVectorTileSource (tileEndpoint) {
       matrixSet: 'EPSG:28992',
       origin: getTopLeft(rdProjection.getExtent())
     }),
-    tilePixelRatio: 16,
     url: `${tileEndpoint}/{z}/{x}/{y}.pbf`,
-    renderBuffer: 10,
     cacheSize: 0
   })
 }
@@ -152,16 +155,16 @@ function initMapFromUrl () {
   }
   let overzoomSetInUrl = false
   if (fragQuery && fragQuery.get('overzoomLevel')) {
-    const overzoom =  Number(fragQuery.get('overzoomLevel'))
+    const overzoom = Number(fragQuery.get('overzoomLevel'))
     overzoomControl.setZoom(overzoom)
     overzoomSetInUrl = true
   }
   if (fragQuery && fragQuery.get('source')) {
     sourceControl.setSelectedByName(fragQuery.get('source'))
   }
-  if (overzoomSetInUrl){
+  if (overzoomSetInUrl) {
     changeTileSource()
-  }else{
+  } else {
     changeTileSourceWithDefaultZoom()
   }
 
@@ -193,6 +196,8 @@ function changeTileSourceWithDefaultZoom () {
         overzoomControl.setZoom(maxZoom)
         changeTileSource()
       })
+  } else {
+    changeTileSource()
   }
 }
 
@@ -206,6 +211,7 @@ function changeTileSource () {
   vectorTileLayer.setVisible(false)
   vectorTileLayer.setSource(vtSource)
   vectorTileLayer.setVisible(true)
+  vectorTileLayer.set('renderMode', 'hybrid')
 }
 
 function zoomToTileSet () {
@@ -241,7 +247,7 @@ function fetchStatusHandler (response) {
 function isEqual (array1, array2) {
   return (
     array1.length === array2.length &&
-        array1.every((value, index) => value === array2[index])
+    array1.every((value, index) => value === array2[index])
   )
 }
 
@@ -269,7 +275,7 @@ function setEventListenerMap () {
       if (isEqual(selCopy, newSelCopy)) {
         // if equal increment index to highlight next feature,
         let newIndex =
-                    (selection.indexOf(highlighted) % (selection.length - 1)) + 1
+          (selection.indexOf(highlighted) % (selection.length - 1)) + 1
         highlighted = selection[newIndex]
       } else {
         highlighted = newSelection[0]
@@ -281,8 +287,8 @@ function setEventListenerMap () {
 
         if (`${layer}-${ftId}` === highlighted) {
           let properties = feature.getProperties()
-          markup += `${markup && '<hr>'
-          }<div><h3>Vector Tile Object</h3><table class='gfitable'>`
+          let markupHr = markup && '<hr>'
+          markup += `${markupHr}<div><h3>Vector Tile Object</h3><table class='gfitable'>`
           for (let property in properties) {
             markup += `<tr><th>${property}</th><td>${properties[property]}</td></tr>`
           }

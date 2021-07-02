@@ -6,7 +6,7 @@ const blue = [0, 153, 255, 1]
 const red = [244, 0, 61, 1]
 const redFill = [244, 0, 61, 0.5]
 const strokeWidth = 4
-const pointWidth = 3.5
+const pointWidth = 2
 
 const linestringStyle = [new Style({
   stroke: new Stroke({
