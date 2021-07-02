@@ -8,20 +8,18 @@ class SourceControl extends HTMLElement {
     const _template = document.createElement('template')
     let dataListString = ''
     let first = true
-    serviceEndpoints.sort(function(a, b) {
-      var nameA = a.name.toUpperCase(); // ignore upper and lowercase
-      var nameB = b.name.toUpperCase(); // ignore upper and lowercase
+    serviceEndpoints.sort(function (a, b) {
+      var nameA = a.name.toUpperCase() // ignore upper and lowercase
+      var nameB = b.name.toUpperCase() // ignore upper and lowercase
       if (nameA < nameB) {
-        return -1;
+        return -1
       }
       if (nameA > nameB) {
-        return 1;
+        return 1
       }
-    
       // names must be equal
-      return 0;
-    });
-
+      return 0
+    })
 
     serviceEndpoints.forEach(src => {
       let selString = first ? 'selected' : ''
@@ -39,12 +37,14 @@ class SourceControl extends HTMLElement {
         #sourceControlButton{
           border-left:  solid 1px #cfd6e6;
         }
+        #sourceInput{
+          width: auto;
+        }
       `
     _template.innerHTML = `
         <div id="sourceControl" class="parentControl">
         <select  id="sourceInput">
             ${dataListString}
-            
             </select>
         </div>
     `

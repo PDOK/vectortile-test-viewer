@@ -93,19 +93,11 @@ const map = new Map({
   })
 })
 
-function getFragementQuery () {
-  if (window.location.hash) {
-    return new URLSearchParams(window.location.hash.substr(1))
-  }
-  return new URLSearchParams()
-}
-
 function getVectorTileSource (tileEndpoint) {
-  let overzoom = overzoomControl.getZoom()
-  console.log(`getVectorTileSource ${overzoom}`)
-  let resolutions = getResolutionsVt(overzoom)
+  let resolutions = getResolutionsVt(overzoomControl.getZoom())
   return new VectorTileSource({
     format: new MVT(),
+    projection: rdProjection,
     tileGrid: new TileGrid({
       extent: rdProjection.getExtent(),
       resolutions: resolutions,
@@ -114,78 +106,9 @@ function getVectorTileSource (tileEndpoint) {
       matrixSet: 'EPSG:28992',
       origin: getTopLeft(rdProjection.getExtent())
     }),
-    tilePixelRatio: 16,
     url: `${tileEndpoint}/{z}/{x}/{y}.pbf`,
-    renderBuffer: 10,
     cacheSize: 0
   })
-}
-
-/* Previously updated on every mappan and zoom event, but ran into rate limit of the
-  history API in firefox. So now the url is retrieved when the button is clicked.
-  See https://hg.mozilla.org/mozilla-central/rev/efcefed227f304781326e7c8a52633559a79b6ad
- */
-function handleMapEvents () {
-  const fragQuery = getFragementQuery()
-  let source = fragQuery.get('source')
-  source = source !== null ? source : sourceControl.getName()
-  const center = map.getView().getCenter()
-  const x = center[0].toString()
-  const y = center[1].toString()
-  const z = map
-    .getView()
-    .getZoom()
-    .toString()
-
-  const filter = filterControl.getFilter()
-  const filterInclude = filterControl.getFilterMode()
-  let overzoomLevel = overzoomControl.getZoom()
-  const hashSearchParams = new URLSearchParams({ x, y, z, source, filter, filterInclude, overzoomLevel })
-  const hashSearchParamsString = hashSearchParams.toString()
-  return hashSearchParamsString
-}
-
-
-
-
-function initMapFromUrl () {
-  // const fragQuery = getFragementQuery()
-  let searchParams = getSearchParams()
-
-  if (searchParams.has('filter') && searchParams.has('filterInclude')){
-    filterControl.setFilter(searchParams.get('filter'))
-    let filterMode = searchParams.get('filterInclude')
-    filterMode = filterMode !== 'false'
-    filterControl.setFilterMode(filterMode)  
-  }
-
-  
-  // let overzoomSetInUrl = false
-  // if (searchParams.has('overzoomLevel')) {
-  //   const overzoom =  parseInt(searchParams.get('overzoomLevel'))
-  //   overzoomControl.setZoom(overzoom)
-  //   console.log(`overzoom: ${overzoom}`)
-  //   overzoomSetInUrl = true
-  // }
-  if (searchParams.has('source')) {
-    sourceControl.setSelectedByName(searchParams.get('source'))
-  }
-
-  if (overzoomSetInUrl){
-    changeTileSource()
-  }else{
-    changeTileSourceWithDefaultZoom()
-  }
-
-  if (searchParams.has('x') && searchParams.has('y') && searchParams.has('z')) {
-    const center = [parseFloat(searchParams.get('x')), parseFloat(searchParams.get('y'))]
-    map.getView().setCenter(center)
-    const zoom = Number(searchParams.get('z'))
-    map.getView().setZoom(zoom)
-  } else {
-    zoomToTileSet()
-  }
-  // window.location.hash = ``
 }
 
 function changeTileSourceWithDefaultZoom () {
@@ -253,34 +176,50 @@ function fetchStatusHandler (response) {
 function isEqual (array1, array2) {
   return (
     array1.length === array2.length &&
-        array1.every((value, index) => value === array2[index])
+    array1.every((value, index) => value === array2[index])
   )
 }
 
-function updateStateZoom() {
+function updateStateZoom () {
   const searchParams = getSearchParams()
-  const view = map.getView();
+  const view = map.getView()
   const center = view.getCenter()
-  searchParams.set("x", center[0].toString())
-  searchParams.set("y", center[1].toString())
-  searchParams.set("z", view.getZoom().toString())
+  searchParams.set('x', center[0].toString())
+  searchParams.set('y', center[1].toString())
+  searchParams.set('z', view.getZoom().toString())
   setSearchParams(searchParams)
 }
 
-function updateStateOverzoom(overzoom) {
+function updateStateOverzoom (overzoom) {
   const searchParams = getSearchParams()
-  searchParams.set("overzoomLevel", overzoom)
+  searchParams.set('overzoomLevel', overzoom)
   setSearchParams(searchParams)
 }
 
-function updateStateSource(sourceName) {
+function updateStateFilter () {
   const searchParams = getSearchParams()
-  searchParams.set("source", sourceName)
+  let filterInclude = filterControl.getFilterMode()
+  let filter = filterControl.getFilter()
+  searchParams.set('filter', filter)
+  searchParams.set('filterInclude', filterInclude)
   setSearchParams(searchParams)
+}
+
+function unsetFilter () {
+  filterControl.setFilter('')
+  filterControl.setFilterMode(true)
+}
+
+function updateStateSource (sourceName) {
+  const searchParams = getSearchParams()
+  searchParams.set('source', sourceName)
+  setSearchParams(searchParams)
+  // when changing source, reset filter query parmas, since filters are not necessarily applicable to other source/dataset
+  unsetFilter()
 }
 
 function setEventListenerMap () {
-  map.on('moveend', function(e) {
+  map.on('moveend', function (e) {
     updateStateZoom()
   })
 
@@ -307,7 +246,7 @@ function setEventListenerMap () {
       if (isEqual(selCopy, newSelCopy)) {
         // if equal increment index to highlight next feature,
         let newIndex =
-                    (selection.indexOf(highlighted) % (selection.length - 1)) + 1
+          (selection.indexOf(highlighted) % (selection.length - 1)) + 1
         highlighted = selection[newIndex]
       } else {
         highlighted = newSelection[0]
@@ -320,7 +259,7 @@ function setEventListenerMap () {
         if (`${layer}-${ftId}` === highlighted) {
           let properties = feature.getProperties()
           markup += `${markup && '<hr>'
-          }<div><h3>Vector Tile Object</h3><table class='gfitable'>`
+            }<div><h3>Vector Tile Object</h3><table class='gfitable'>`
           for (let property in properties) {
             markup += `<tr><th>${property}</th><td>${properties[property]}</td></tr>`
           }
@@ -357,6 +296,7 @@ function sourceInputButtonChangeHandler (event) {
 
 function filterInputButtonClickHandler (event) {
   event.preventDefault()
+  updateStateFilter()
   vectorTileLayer.setStyle(styleFunction)
 }
 
@@ -375,14 +315,18 @@ function addVTSourceInput () {
   let myControl = new Control({ element: sourceControl })
   map.addControl(myControl)
   sourceControl.addEventListener('select-changed', sourceInputButtonChangeHandler, false)
-  // call updateStateSource to properly init url
-  updateStateSource(sourceControl.getName())
+  // call updateStateSource to properly init url if not set
+  let searchParams = getSearchParams()
+  let source = searchParams.get('source')
+  if (!source) {
+    updateStateSource(sourceControl.getName())
+  }
 }
 
 function addFilterInput () {
   let myControl = new Control({ element: filterControl })
   map.addControl(myControl)
-  filterControl.addEventListener('select-changed', filterInputButtonClickHandler, false)
+  filterControl.addEventListener('control-button-clicked', filterInputButtonClickHandler, false)
 }
 
 function addLsInput () {
@@ -394,7 +338,7 @@ function addLsInput () {
 function addOverzoomInput (oz) {
   let myControl = new Control({ element: overzoomControl })
   map.addControl(myControl)
-  if (oz){
+  if (oz) {
     overzoomControl.setZoom(oz)
   }
   overzoomControl.addEventListener('overzoom-changed', overzoomChangedHandler, false)
@@ -410,19 +354,6 @@ function setEventListeners () {
     vectorTileLayer.changed()
     document.getElementById('featureinfo').innerHTML = ''
   })
-
-  // copy url button
-  document.getElementById('copyUrl').addEventListener('click', function (e) {
-    // let hash = handleMapEvents()
-    let sharableUrl = `${window.location.href}${hash}`
-    navigator.clipboard.writeText(sharableUrl).then(function () {
-      let prevColor = e.target.style.color
-      e.target.style.color = 'green'
-      setTimeout(x => { e.target.style.color = prevColor }, 300)
-    }, function (err) {
-      alert('Async: Could not copy text: ', err)
-    })
-  }, false)
 }
 
 function styleFunction (feature, resolution) {
@@ -462,19 +393,24 @@ function styleFunction (feature, resolution) {
 
 function initApp () {
   let searchParams = getSearchParams()
-  let oz = searchParams.get('overzoomLevel')
-  
-  addOverzoomInput(oz)
+  let overzoomLevel = searchParams.get('overzoomLevel')
+
+  addOverzoomInput(overzoomLevel)
   addFilterInput()
   addLsInput()
   addVTSourceInput()
 
   setEventListeners()
   vectorTileLayer.setStyle(styleFunction)
-  
-  if (oz){
+
+  let source = searchParams.get('source')
+  if (source) {
+    sourceControl.setSelectedByName(source)
+  }
+
+  if (overzoomLevel) {
     changeTileSource()
-  }else{
+  } else {
     changeTileSourceWithDefaultZoom()
   }
   if (searchParams.has('x') && searchParams.has('y') && searchParams.has('z')) {
@@ -485,7 +421,16 @@ function initApp () {
   } else {
     zoomToTileSet()
   }
-  
+
+  if (searchParams.has('source')) {
+    sourceControl.setSelectedByName(searchParams.get('source'))
+  }
+  if (searchParams.has('filter') && searchParams.has('filterInclude')) {
+    filterControl.setFilter(searchParams.get('filter'))
+    let filterMode = searchParams.get('filterInclude')
+    filterMode = filterMode !== 'false'
+    filterControl.setFilterMode(filterMode)
+  }
 }
 
 customElements.define('filter-control', FilterControl)
