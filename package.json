@@ -30,7 +30,7 @@
   "dependencies": {
     "datalist-polyfill": "^1.24.4",
     "normalize.css": "^8.0.1",
-    "ol": "^5.3.0",
+    "ol": "^6.5.0",
     "proj4": "^2.7.4"
   }
 }

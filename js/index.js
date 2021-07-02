@@ -62,10 +62,14 @@ const tileBackgroundLayer = new TileLayer({
   })
 })
 
-const vectorTileLayer = new VectorTileLayer({
-  rendermode: 'image',
-  useInterimTilesOnError: false
-})
+const vectorTileLayer = new VectorTileLayer(
+
+  {
+    renderMode: 'hybrid',
+    opacity: 0.8,
+    declutter: true,
+    useInterimTilesOnError: false
+  })
 
 // TileDebug can be used to show boundaries of tiling schema
 // off by one vertically
@@ -128,6 +132,8 @@ function changeTileSourceWithDefaultZoom () {
         overzoomControl.setZoom(maxZoom)
         changeTileSource()
       })
+  } else {
+    changeTileSource()
   }
 }
 
@@ -141,6 +147,7 @@ function changeTileSource () {
   vectorTileLayer.setVisible(false)
   vectorTileLayer.setSource(vtSource)
   vectorTileLayer.setVisible(true)
+  vectorTileLayer.set('renderMode', 'hybrid')
 }
 
 function zoomToTileSet () {
@@ -231,6 +238,17 @@ function setEventListenerMap () {
       vectorTileLayer.changed()
       return
     }
+    features.sort((a, b) => {
+      const orderLookup = {
+        'Polygon': 3,
+        'Point': 1,
+        'LineString': 2
+      }
+      let order1 = orderLookup[a.type_]
+      let order2 = orderLookup[b.type_]
+      return order1 - order2
+    })
+
     let newSelection = []
     features.forEach(function (ft) {
       let ftId = ft.get(selectionProperty)
@@ -258,8 +276,8 @@ function setEventListenerMap () {
 
         if (`${layer}-${ftId}` === highlighted) {
           let properties = feature.getProperties()
-          markup += `${markup && '<hr>'
-            }<div><h3>Vector Tile Object</h3><table class='gfitable'>`
+          let markupHr = markup && '<hr>'
+          markup += `${markupHr}<div><h3>Vector Tile Object</h3><table class='gfitable'>`
           for (let property in properties) {
             markup += `<tr><th>${property}</th><td>${properties[property]}</td></tr>`
           }
