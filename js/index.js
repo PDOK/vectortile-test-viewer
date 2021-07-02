@@ -260,6 +260,17 @@ function setEventListenerMap () {
       vectorTileLayer.changed()
       return
     }
+    features.sort((a, b) => {
+      const orderLookup = {
+        'Polygon': 3,
+        'Point': 1,
+        'LineString': 2
+      }
+      let order1 = orderLookup[a.type_]
+      let order2 = orderLookup[b.type_]
+      return order1 - order2
+    })
+
     let newSelection = []
     features.forEach(function (ft) {
       let ftId = ft.get(selectionProperty)
