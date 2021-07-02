@@ -19,6 +19,7 @@ import FilterControl from './filter-control'
 import SourceControl from './source-control'
 import LocationServerControl from './locatie-server-control'
 import OverzoomControl from './overzoom-control'
+import { setSearchParams, getSearchParams } from './util'
 
 const sidebarEmptyText = 'Klik op een object voor attribuut informatie'
 const selectionProperty = 'identificatie'
@@ -96,13 +97,6 @@ const map = new Map({
   })
 })
 
-function getFragementQuery () {
-  if (window.location.hash) {
-    return new URLSearchParams(window.location.hash.substr(1))
-  }
-  return new URLSearchParams()
-}
-
 function getVectorTileSource (tileEndpoint) {
   let resolutions = getResolutionsVt(overzoomControl.getZoom())
   return new VectorTileSource({
@@ -119,64 +113,6 @@ function getVectorTileSource (tileEndpoint) {
     url: `${tileEndpoint}/{z}/{x}/{y}.pbf`,
     cacheSize: 0
   })
-}
-
-/* Previously updated on every mappan and zoom event, but ran into rate limit of the
-  history API in firefox. So now the url is retrieved when the button is clicked.
-  See https://hg.mozilla.org/mozilla-central/rev/efcefed227f304781326e7c8a52633559a79b6ad
- */
-function handleMapEvents () {
-  const fragQuery = getFragementQuery()
-  let source = fragQuery.get('source')
-  source = source !== null ? source : sourceControl.getName()
-  const center = map.getView().getCenter()
-  const x = center[0].toString()
-  const y = center[1].toString()
-  const z = map
-    .getView()
-    .getZoom()
-    .toString()
-
-  const filter = filterControl.getFilter()
-  const filterInclude = filterControl.getFilterMode()
-  let overzoomLevel = overzoomControl.getZoom()
-  const hashSearchParams = new URLSearchParams({ x, y, z, source, filter, filterInclude, overzoomLevel })
-  const hashSearchParamsString = hashSearchParams.toString()
-  return hashSearchParamsString
-}
-
-function initMapFromUrl () {
-  const fragQuery = getFragementQuery()
-  if (fragQuery && fragQuery.get('filter') && fragQuery.get('filterInclude')) {
-    filterControl.setFilter(fragQuery.get('filter'))
-    let filterMode = fragQuery.get('filterInclude')
-    filterMode = filterMode !== 'false'
-    filterControl.setFilterMode(filterMode)
-  }
-  let overzoomSetInUrl = false
-  if (fragQuery && fragQuery.get('overzoomLevel')) {
-    const overzoom = Number(fragQuery.get('overzoomLevel'))
-    overzoomControl.setZoom(overzoom)
-    overzoomSetInUrl = true
-  }
-  if (fragQuery && fragQuery.get('source')) {
-    sourceControl.setSelectedByName(fragQuery.get('source'))
-  }
-  if (overzoomSetInUrl) {
-    changeTileSource()
-  } else {
-    changeTileSourceWithDefaultZoom()
-  }
-
-  if (fragQuery && fragQuery.get('x') && fragQuery.get('y') && fragQuery.get('z')) {
-    const center = [parseFloat(fragQuery.get('x')), parseFloat(fragQuery.get('y'))]
-    map.getView().setCenter(center)
-    const zoom = Number(fragQuery.get('z'))
-    map.getView().setZoom(zoom)
-  } else {
-    zoomToTileSet()
-  }
-  window.location.hash = ``
 }
 
 function changeTileSourceWithDefaultZoom () {
@@ -251,7 +187,49 @@ function isEqual (array1, array2) {
   )
 }
 
+function updateStateZoom () {
+  const searchParams = getSearchParams()
+  const view = map.getView()
+  const center = view.getCenter()
+  searchParams.set('x', center[0].toString())
+  searchParams.set('y', center[1].toString())
+  searchParams.set('z', view.getZoom().toString())
+  setSearchParams(searchParams)
+}
+
+function updateStateOverzoom (overzoom) {
+  const searchParams = getSearchParams()
+  searchParams.set('overzoomLevel', overzoom)
+  setSearchParams(searchParams)
+}
+
+function updateStateFilter () {
+  const searchParams = getSearchParams()
+  let filterInclude = filterControl.getFilterMode()
+  let filter = filterControl.getFilter()
+  searchParams.set('filter', filter)
+  searchParams.set('filterInclude', filterInclude)
+  setSearchParams(searchParams)
+}
+
+function unsetFilter () {
+  filterControl.setFilter('')
+  filterControl.setFilterMode(true)
+}
+
+function updateStateSource (sourceName) {
+  const searchParams = getSearchParams()
+  searchParams.set('source', sourceName)
+  setSearchParams(searchParams)
+  // when changing source, reset filter query parmas, since filters are not necessarily applicable to other source/dataset
+  unsetFilter()
+}
+
 function setEventListenerMap () {
+  map.on('moveend', function (e) {
+    updateStateZoom()
+  })
+
   map.on('click', function (e) {
     let markup = ''
     let features = map.getFeaturesAtPixel(e.pixel, { hitTolerance: 3 })
@@ -330,11 +308,13 @@ function getMaxZoomCapabilities (xmlString) {
 }
 function sourceInputButtonChangeHandler (event) {
   event.preventDefault()
+  updateStateSource(sourceControl.getName())
   changeTileSourceWithDefaultZoom()
 }
 
 function filterInputButtonClickHandler (event) {
   event.preventDefault()
+  updateStateFilter()
   vectorTileLayer.setStyle(styleFunction)
 }
 
@@ -344,6 +324,7 @@ function locationSelectedHandler (event) {
 }
 
 function overzoomChangedHandler (event) {
+  updateStateOverzoom(overzoomControl.getZoom())
   changeTileSource()
 }
 
@@ -352,12 +333,18 @@ function addVTSourceInput () {
   let myControl = new Control({ element: sourceControl })
   map.addControl(myControl)
   sourceControl.addEventListener('select-changed', sourceInputButtonChangeHandler, false)
+  // call updateStateSource to properly init url if not set
+  let searchParams = getSearchParams()
+  let source = searchParams.get('source')
+  if (!source) {
+    updateStateSource(sourceControl.getName())
+  }
 }
 
 function addFilterInput () {
   let myControl = new Control({ element: filterControl })
   map.addControl(myControl)
-  filterControl.addEventListener('select-changed', filterInputButtonClickHandler, false)
+  filterControl.addEventListener('control-button-clicked', filterInputButtonClickHandler, false)
 }
 
 function addLsInput () {
@@ -366,10 +353,14 @@ function addLsInput () {
   lsCOntrol.addEventListener('location-selected', locationSelectedHandler, false)
 }
 
-function addOverzoomInput () {
+function addOverzoomInput (oz) {
   let myControl = new Control({ element: overzoomControl })
   map.addControl(myControl)
+  if (oz) {
+    overzoomControl.setZoom(oz)
+  }
   overzoomControl.addEventListener('overzoom-changed', overzoomChangedHandler, false)
+  updateStateOverzoom(overzoomControl.getZoom())
 }
 
 function setEventListeners () {
@@ -381,19 +372,6 @@ function setEventListeners () {
     vectorTileLayer.changed()
     document.getElementById('featureinfo').innerHTML = ''
   })
-
-  // copy url button
-  document.getElementById('copyUrl').addEventListener('click', function (e) {
-    let hash = handleMapEvents()
-    let sharableUrl = `${window.location.href}${hash}`
-    navigator.clipboard.writeText(sharableUrl).then(function () {
-      let prevColor = e.target.style.color
-      e.target.style.color = 'green'
-      setTimeout(x => { e.target.style.color = prevColor }, 300)
-    }, function (err) {
-      alert('Async: Could not copy text: ', err)
-    })
-  }, false)
 }
 
 function styleFunction (feature, resolution) {
@@ -432,13 +410,45 @@ function styleFunction (feature, resolution) {
 }
 
 function initApp () {
-  addVTSourceInput()
+  let searchParams = getSearchParams()
+  let overzoomLevel = searchParams.get('overzoomLevel')
+
+  addOverzoomInput(overzoomLevel)
   addFilterInput()
   addLsInput()
-  addOverzoomInput()
+  addVTSourceInput()
+
   setEventListeners()
   vectorTileLayer.setStyle(styleFunction)
-  initMapFromUrl()
+
+  let source = searchParams.get('source')
+  if (source) {
+    sourceControl.setSelectedByName(source)
+  }
+
+  if (overzoomLevel) {
+    changeTileSource()
+  } else {
+    changeTileSourceWithDefaultZoom()
+  }
+  if (searchParams.has('x') && searchParams.has('y') && searchParams.has('z')) {
+    const center = [parseFloat(searchParams.get('x')), parseFloat(searchParams.get('y'))]
+    map.getView().setCenter(center)
+    const zoom = Number(searchParams.get('z'))
+    map.getView().setZoom(zoom)
+  } else {
+    zoomToTileSet()
+  }
+
+  if (searchParams.has('source')) {
+    sourceControl.setSelectedByName(searchParams.get('source'))
+  }
+  if (searchParams.has('filter') && searchParams.has('filterInclude')) {
+    filterControl.setFilter(searchParams.get('filter'))
+    let filterMode = searchParams.get('filterInclude')
+    filterMode = filterMode !== 'false'
+    filterControl.setFilterMode(filterMode)
+  }
 }
 
 customElements.define('filter-control', FilterControl)

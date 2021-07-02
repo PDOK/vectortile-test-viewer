@@ -56,9 +56,11 @@ class FilterControl extends HTMLElement {
   setFilter (val) {
     val = val === undefined ? '' : val
     this.shadow.getElementById('filterInput').value = val
+    this.dispatchEvent(new CustomEvent('control-button-clicked', { bubbles: true, composed: true, detail: { id: this.id } })) // dispatch event, so that parent can loop and deselect other items
   }
   setFilterMode (val) {
     this.shadow.getElementById('filterCheck').checked = val
+    this.dispatchEvent(new CustomEvent('control-button-clicked', { bubbles: true, composed: true, detail: { id: this.id } })) // dispatch event, so that parent can loop and deselect other items
   }
   connectedCallback () {
     this.shadow.addEventListener('keydown', (event) => {

@@ -17,7 +17,6 @@ class SourceControl extends HTMLElement {
       if (nameA > nameB) {
         return 1
       }
-
       // names must be equal
       return 0
     })
@@ -38,12 +37,14 @@ class SourceControl extends HTMLElement {
         #sourceControlButton{
           border-left:  solid 1px #cfd6e6;
         }
+        #sourceInput{
+          width: auto;
+        }
       `
     _template.innerHTML = `
         <div id="sourceControl" class="parentControl">
         <select  id="sourceInput">
             ${dataListString}
-            
             </select>
         </div>
     `
