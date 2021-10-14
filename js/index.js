@@ -110,7 +110,7 @@ function getVectorTileSource (tileEndpoint) {
       matrixSet: 'EPSG:28992',
       origin: getTopLeft(rdProjection.getExtent())
     }),
-    url: `${tileEndpoint}/{z}/{x}/{y}.pbf`,
+    url: `${tileEndpoint}/{z}/{x}/{y}`,
     cacheSize: 0
   })
 }
