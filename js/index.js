@@ -106,6 +106,7 @@ const map = new Map({
 
 function getVectorTileSource (tileEndpoint) {
   let resolutions = getResolutionsVt(overzoomControl.getZoom())
+  let extension = (tileEndpoint.toLowerCase().includes("wmts")) ? ".pbf"  : "";
   return new VectorTileSource({
     format: new MVT(),
     projection: rdProjection,
@@ -117,7 +118,7 @@ function getVectorTileSource (tileEndpoint) {
       matrixSet: 'EPSG:28992',
       origin: getTopLeft(rdProjection.getExtent())
     }),
-    url: `${tileEndpoint}/{z}/{x}/{y}`,
+    url: `${tileEndpoint}/{z}/{x}/{y}${extension}`,
     cacheSize: 0
   })
 }
@@ -127,7 +128,7 @@ function changeTileSourceWithDefaultZoom () {
   // retrieve url that ends with `vX_X/`, input url:
   // https://service.pdok.nl/omgevingswet/omgevingsdocumenten-demo/wmts/v1_0/locaties/EPSG:28992
   let myRegex = new RegExp('(v[0-9]+_[0-9]+.*?/)')
-  if (sourceUrl.match(myRegex)) {
+  if (sourceUrl.match(myRegex) && sourceUrl.includes("wmts")) {
     let splitResult = sourceUrl.split(myRegex)
     let capabilitiesUrl = `${splitResult[0]}${splitResult[1]}WMTSCapabilities.xml`
     fetch(capabilitiesUrl)
