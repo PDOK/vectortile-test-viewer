@@ -1,4 +1,5 @@
-import 'ol/ol.css'
+
+import olCssText from 'bundle-text:ol/ol.css'
 import { Map, View } from 'ol'
 import MVT from 'ol/format/MVT.js'
 import VectorTileLayer from 'ol/layer/VectorTile.js'
@@ -20,6 +21,12 @@ import SourceControl from './source-control'
 import LocationServerControl from './locatie-server-control'
 import OverzoomControl from './overzoom-control'
 import { setSearchParams, getSearchParams } from './util'
+
+// add ol style css
+let olStyle = document.createElement('style')
+olStyle.textContent = olCssText
+const head = document.head || document.getElementsByTagName('head')[0]
+head.appendChild(olStyle)
 
 const sidebarEmptyText = 'Klik op een object voor attribuut informatie'
 const selectionProperty = 'identificatie'
