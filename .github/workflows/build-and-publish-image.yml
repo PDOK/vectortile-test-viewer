@@ -1,6 +1,6 @@
 name: Build and Publish Docker Image
 env:
-  image: pdokcr.azurecr.io/pdok/vectortile-test-viewer
+  image: pdok/vectortile-test-viewer
 on:
   push:
     tags:
