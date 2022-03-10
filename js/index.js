@@ -22,6 +22,9 @@ import LocationServerControl from './locatie-server-control'
 import OverzoomControl from './overzoom-control'
 import { setSearchParams, getSearchParams } from './util'
 
+// [1]: base [2]: optional version part [3]: extension
+const endpointRegex = /(^.+?(v[0-9]+_[0-9]+.*?)?)\/{z}\/{x}\/{y}([.]pbf)?$/
+
 // add ol style css
 let olStyle = document.createElement('style')
 olStyle.textContent = olCssText
@@ -106,7 +109,6 @@ const map = new Map({
 
 function getVectorTileSource (tileEndpoint) {
   let resolutions = getResolutionsVt(overzoomControl.getZoom())
-  let extension = (tileEndpoint.toLowerCase().includes("wmts")) ? ".pbf"  : "";
   return new VectorTileSource({
     format: new MVT(),
     projection: rdProjection,
@@ -118,7 +120,7 @@ function getVectorTileSource (tileEndpoint) {
       matrixSet: 'EPSG:28992',
       origin: getTopLeft(rdProjection.getExtent())
     }),
-    url: `${tileEndpoint}/{z}/{x}/{y}${extension}`,
+    url: `${tileEndpoint}`,
     cacheSize: 0
   })
 }
@@ -127,10 +129,9 @@ function changeTileSourceWithDefaultZoom () {
   let sourceUrl = sourceControl.getUrl()
   // retrieve url that ends with `vX_X/`, input url:
   // https://service.pdok.nl/omgevingswet/omgevingsdocumenten-demo/wmts/v1_0/locaties/EPSG:28992
-  let myRegex = new RegExp('(v[0-9]+_[0-9]+.*?/)')
-  if (sourceUrl.match(myRegex) && sourceUrl.includes("wmts")) {
-    let splitResult = sourceUrl.split(myRegex)
-    let capabilitiesUrl = `${splitResult[0]}${splitResult[1]}WMTSCapabilities.xml`
+  const endpointParts = endpointRegex.exec(sourceUrl)
+  if (endpointParts[2] && sourceUrl.includes("wmts")) {
+    let capabilitiesUrl = `${endpointParts[1]}/WMTSCapabilities.xml`
     fetch(capabilitiesUrl)
       .then((response) => {
         return response.text()
@@ -160,7 +161,8 @@ function changeTileSource () {
 
 function zoomToTileSet () {
   let tileEndpoint = sourceControl.getUrl()
-  let metadataJsonUrl = `${tileEndpoint}/metadata.json`
+  const endpointParts = endpointRegex.exec(tileEndpoint)
+  let metadataJsonUrl = `${endpointParts[1]}/metadata.json`
   fetch(metadataJsonUrl)
     .then((response) => fetchStatusHandler(response))
     .then((response) => { return response.json() })

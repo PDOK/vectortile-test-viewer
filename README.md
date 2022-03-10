@@ -25,3 +25,9 @@ De viewer is nu beschikbaar op [http://localhost:1234/](http://localhost:1234/).
 Het volgende script kan gebruikt worden om vectortile-sets lokaal uit te serveren:
 
 <https://gist.github.com/arbakker/6cc78304be9fd1b2c1dc251e877b918c>
+
+## Docker
+
+```
+docker run -p 8080:80 -e SERVICE_ENDPOINTS='[{"name": "my", "url": "http://host/tiles/{z}/{x}/{y}.pbf"}' pdok/vectortile-test-viewer
+```
