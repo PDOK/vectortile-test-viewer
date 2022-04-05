@@ -22,8 +22,11 @@ import LocationServerControl from './locatie-server-control'
 import OverzoomControl from './overzoom-control'
 import { setSearchParams, getSearchParams } from './util'
 
-// [1]: base [2]: optional version part [3]: extension
-const endpointRegex = /(^.+?(v[0-9]+_[0-9]+.*?)?)\/{z}\/{x}\/{y}([.]pbf)?$/
+// [1]: base up until /z/x/y
+// [2]: base up until and including version (if applicable, otherwise same as 1)
+// [3]: version (if applicable)
+// [4]: extension
+const endpointRegex = /^(((?:.(?!v[0-9]+_[0-9]+))+(?:\/(v[0-9]+_[0-9]+))?).*)\/{z}\/{x}\/{y}([.]pbf)?$/
 
 // add ol style css
 let olStyle = document.createElement('style')
@@ -130,8 +133,8 @@ function changeTileSourceWithDefaultZoom () {
   // retrieve url that ends with `vX_X/`, input url:
   // https://service.pdok.nl/omgevingswet/omgevingsdocumenten-demo/wmts/v1_0/locaties/EPSG:28992
   const endpointParts = endpointRegex.exec(sourceUrl)
-  if (endpointParts[2] && sourceUrl.includes("wmts")) {
-    let capabilitiesUrl = `${endpointParts[1]}/WMTSCapabilities.xml`
+  if (endpointParts[3] && sourceUrl.includes("wmts")) {
+    let capabilitiesUrl = `${endpointParts[2]}/WMTSCapabilities.xml`
     fetch(capabilitiesUrl)
       .then((response) => {
         return response.text()
