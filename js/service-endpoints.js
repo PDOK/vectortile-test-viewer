@@ -1,3 +1,5 @@
+import runtimeConfig from "./runtime-config";
+
 const defaultServiceEndpoints = [
   { 'name': 'omgevingswet-acceptatie', 'url': 'https://service.pdok.nl/omgevingswet/omgevingsdocumenten-acc/wmts/v1_0/locaties/EPSG:28992/{z}/{x}/{y}.pbf' },
   { 'name': 'omgevingswet-demo', 'url': 'https://service.pdok.nl/omgevingswet/omgevingsdocumenten-demo/wmts/v1_0/locaties/EPSG:28992/{z}/{x}/{y}.pbf' },
@@ -15,10 +17,5 @@ const defaultServiceEndpoints = [
   { 'name': 'bgt-demo', 'url': 'https://api.pdok.nl/lv/bgt/oat/v1_0-preprod/tiles/EPSG:28992/{z}/{x}/{y}' }
 ]
 
-// FIXME Find a proper way to inject runtime env
-const serviceEndpointsJson = '' + (window['SERVICE_ENDPOINTS'] || '') + (process.env.SERVICE_ENDPOINTS || '')
-const serviceEndpoints = (serviceEndpointsJson && serviceEndpointsJson.length !== 26)
-  ? JSON.parse(serviceEndpointsJson)
-  : defaultServiceEndpoints
-
+const serviceEndpoints = runtimeConfig.serviceEndpoints || defaultServiceEndpoints
 export default serviceEndpoints

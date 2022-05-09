@@ -29,5 +29,5 @@ Het volgende script kan gebruikt worden om vectortile-sets lokaal uit te servere
 ## Docker
 
 ```
-docker run -p 8080:80 -e SERVICE_ENDPOINTS='[{"name": "my", "url": "http://host/tiles/{z}/{x}/{y}.pbf"}' pdok/vectortile-test-viewer
+docker run -p 8080:80 -e RUNTIME_CONFIG='{"serviceEndpoints": [{"name": "my", "url": "http://host/tiles/{z}/{x}/{y}.pbf"}]}' pdok/vectortile-test-viewer
 ```

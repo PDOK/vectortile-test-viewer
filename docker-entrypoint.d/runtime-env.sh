@@ -1,13 +1,10 @@
-#!/usr/bin/env sh
+#!/usr/bin/env bash
 
-set -eu
+set -e
 
 cd /usr/share/nginx/html
 
-js_path=$(grep -oP '(?<=src=")index\.[a-f0-9]{8}\.js(?=")' index.html)
-count=$(grep -c _RUNTIME_SERVICE_ENDPOINTS "$js_path")
-echo replacing $count occurences of _RUNTIME_SERVICE_ENDPOINTS in "$js_path"
-echo SERVICE_ENDPOINTS:
-echo $SERVICE_ENDPOINTS
-sed -i 's#"_RUNTIME_SERVICE_ENDPOINTS"#'"'$SERVICE_ENDPOINTS'#" "$js_path"
-sed -i 's#"_RUNTIME_SERVICE_ENDPOINTS"#'"'$SERVICE_ENDPOINTS'#" "$js_path.map"
+if [ -n "$RUNTIME_CONFIG" ]; then
+  echo "RUNTIME_CONFIG:\n$RUNTIME_CONFIG"
+  sed -i s$'\001''window.runtime_config="{}"'$'\001'"window.runtime_config=$RUNTIME_CONFIG"$'\001'g index.html
+fi
