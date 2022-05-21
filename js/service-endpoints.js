@@ -14,7 +14,7 @@ const defaultServiceEndpoints = [
   { 'name': 'omgevingswet-ketenprf-totaal', 'url': 'https://service.pdok.nl/omgevingswet/omgevingsdocumenten-totaal-ketenprf/wmts/v1_0/locaties/EPSG:28992/{z}/{x}/{y}.pbf' },
   { 'name': 'omgevingswet-ketenacc-totaal', 'url': 'https://service.pdok.nl/omgevingswet/omgevingsdocumenten-totaal-ketenacc/wmts/v1_0/locaties/EPSG:28992/{z}/{x}/{y}.pbf' },
   { 'name': 'omgevingswet-preprod', 'url': 'https://service.pdok.nl/omgevingswet/omgevingsdocumenten-preprod/wmts/v1_0/locaties/EPSG:28992/{z}/{x}/{y}.pbf' },
-  { 'name': 'bgt-demo', 'url': 'https://api.pdok.nl/lv/bgt/oat/v1_0-preprod/tiles/EPSG:28992/{z}/{x}/{y}' }
+  { 'name': 'bgt-demo', 'url': 'https://api.pdok.nl/lv/bgt/ogc/v0_1/tiles/NetherlandsRDNewQuad/{z}/{x}/{y}.pbf' }
 ]
 
 const serviceEndpoints = runtimeConfig.serviceEndpoints || defaultServiceEndpoints
