@@ -14,7 +14,7 @@ const defaultServiceEndpoints = [
   { 'name': 'omgevingswet-ketenprf-totaal', 'url': 'https://service.pdok.nl/omgevingswet/omgevingsdocumenten-totaal-ketenprf/wmts/v1_0/locaties/EPSG:28992/{z}/{x}/{y}.pbf' },
   { 'name': 'omgevingswet-ketenacc-totaal', 'url': 'https://service.pdok.nl/omgevingswet/omgevingsdocumenten-totaal-ketenacc/wmts/v1_0/locaties/EPSG:28992/{z}/{x}/{y}.pbf' },
   { 'name': 'omgevingswet-preprod', 'url': 'https://service.pdok.nl/omgevingswet/omgevingsdocumenten/wmts/v1_0-preprod/locaties/EPSG:28992/{z}/{x}/{y}.pbf' },
-  { 'name': 'bgt-demo', 'url': 'https://api.pdok.nl/lv/bgt/ogc/v1_0/tiles/NetherlandsRDNewQuad/{z}/{x}/{y}.pbf' },
+  { 'name': 'bgt-demo', 'url': 'https://api.pdok.nl/lv/bgt/ogc/v1_0/tiles/NetherlandsRDNewQuad/{z}/{y}/{x}.pbf' },
   { 'name': 'trex-perf-demo', 'url': 'https://service.pdok.nl/trex-perf-eric/bgt/{z}/{x}/{y}.pbf' }
 ]
 
