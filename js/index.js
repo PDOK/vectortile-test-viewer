@@ -26,7 +26,7 @@ import { setSearchParams, getSearchParams } from './util'
 // [2]: base up until and including version (if applicable, otherwise same as 1)
 // [3]: version (if applicable)
 // [4]: extension
-const endpointRegex = /^(((?:.(?!v[0-9]+_[0-9]+))+(?:\/(v[0-9]+_[0-9]+))?).*)\/{z}\/{x}\/{y}([.]pbf)?$/
+const endpointRegex = /^(((?:.(?!v[0-9]+_[0-9]+))+(?:\/(v[0-9]+_[0-9]+))?).*)\/{z}\/{[xy]}\/{[yx]}([.]pbf)?$/
 
 // add ol style css
 let olStyle = document.createElement('style')
